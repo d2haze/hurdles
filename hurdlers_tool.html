@@ -1,0 +1,1655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Derek Drew — Hurdle Critical Zones & Touchdown Time Tool</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f0ecf8;
+  --bg2: #e6e0f4;
+  --bg3: #d9d0ed;
+  --card: #ffffff;
+  --header: #2d1b6e;
+  --ink: #1a1035;
+  --ink2: #3d2d6a;
+  --ink3: #6b5b8a;
+  --purple: #4c2fa0;
+  --purple2: #3b2280;
+  --gold: #c4900a;
+  --gold2: #a87408;
+  --violet: #7c5cbf;
+  --border: #c4b8e0;
+  --border2: #a090c8;
+  --text: #1a1035;
+  --display: 'Oswald', sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--serif);font-size:15px;line-height:1.6;min-height:100vh}
+
+/* grain overlay */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:1000;opacity:0.5}
+
+/* HEADER */
+.site-header{background:var(--header);padding:0 1.5rem;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:3px solid var(--gold)}
+.logo{font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);display:flex;align-items:center;gap:10px}
+.logo-sub{font-size:10px;font-weight:300;letter-spacing:0.16em;color:rgba(255,255,255,0.6);text-transform:uppercase;font-family:var(--display)}
+.print-btn{background:transparent;border:1px solid rgba(255,255,255,0.3);color:rgba(255,255,255,0.7);font-family:var(--display);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:5px 12px;border-radius:2px;cursor:pointer;transition:all 0.15s}
+.print-btn:hover{border-color:var(--gold);color:var(--gold)}
+
+/* HERO */
+.hero{background:var(--header);padding:2rem 1.5rem 1.5rem;border-bottom:3px solid var(--gold)}
+.hero-inner{max-width:1100px;margin:0 auto}
+.hero-kicker{font-family:var(--display);font-size:10px;font-weight:400;letter-spacing:0.2em;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.hero-title{font-family:var(--display);font-weight:700;font-size:clamp(32px,5vw,60px);line-height:1;text-transform:uppercase;letter-spacing:0.04em;color:var(--gold);margin-bottom:8px}
+.hero-title em{color:#f8f5ef;font-style:normal}
+.hero-desc{font-size:13px;color:rgba(255,255,255,0.7);max-width:600px;line-height:1.7;font-style:italic}
+
+/* TOOL TABS */
+.container{max-width:1100px;margin:0 auto;padding:1.5rem}
+.tool-tabs{display:flex;gap:0;margin-bottom:1.5rem;border:1px solid var(--border2);border-radius:6px;overflow:hidden;background:var(--bg2)}
+.tool-tab{flex:1;padding:11px 16px;font-family:var(--display);font-size:13px;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;border:none;background:transparent;color:var(--ink3);cursor:pointer;border-right:1px solid var(--border);transition:all 0.15s;text-align:center}
+.tool-tab:last-child{border-right:none}
+.tool-tab.active{background:var(--purple);color:#ffffff}
+.tool-tab:hover:not(.active){background:var(--bg3);color:var(--purple)}
+
+.tool-panel{display:none}
+.tool-panel.active{display:block}
+
+/* SECTION HEADERS */
+.section-head{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:0.18em;text-transform:uppercase;color:var(--purple);border-bottom:2px solid var(--gold);padding-bottom:6px;margin-bottom:1rem}
+
+/* CARD */
+.card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1.25rem;margin-bottom:1rem;box-shadow:0 2px 8px rgba(76,47,160,0.08)}
+.card-title{font-family:var(--display);font-size:14px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--header);margin-bottom:4px}
+.card-desc{font-size:12px;color:var(--ink3);font-style:italic;margin-bottom:1rem;line-height:1.6}
+
+/* INPUT CONTROLS */
+.ctrl-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+.ctrl-label{font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);min-width:100px}
+select,input[type=number]{background:var(--bg2);border:1px solid var(--border2);color:var(--ink);font-family:var(--serif);font-size:13px;padding:6px 10px;border-radius:2px;outline:none;transition:border-color 0.15s}
+select:focus,input[type=number]:focus{border-color:var(--gold)}
+input[type=number]{width:90px}
+
+/* RESULT DISPLAY */
+.result-banner{background:var(--purple);border-radius:3px;padding:1rem 1.25rem;margin:1rem 0;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+.result-label{font-family:var(--display);font-size:11px;font-weight:400;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.7)}
+.result-value{font-family:var(--display);font-size:28px;font-weight:700;color:#ffffff;letter-spacing:0.04em}
+.result-unit{font-family:var(--display);font-size:14px;color:var(--gold);font-weight:400;margin-left:4px}
+.result-sub{font-size:12px;color:#8a7a65;font-style:italic}
+
+/* HURDLE TABLE */
+.hurdle-table{width:100%;border-collapse:collapse;font-size:13px;margin:10px 0}
+.hurdle-table th{font-family:var(--display);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);padding:7px 10px;border-bottom:2px solid var(--gold);text-align:center;background:var(--bg2)}
+.hurdle-table th:first-child{text-align:left}
+.hurdle-table td{padding:7px 10px;border-bottom:1px solid var(--bg3);text-align:center;color:var(--ink)}
+.hurdle-table td:first-child{text-align:left;font-weight:600;font-family:var(--display);font-size:12px;letter-spacing:0.04em;text-transform:uppercase}
+.hurdle-table tr:hover td{background:var(--bg2)}
+.hurdle-table tr.highlight td{background:rgba(196,144,10,0.10);color:var(--purple)}
+.hurdle-table tr.highlight td:first-child{color:var(--gold)}
+.t-time{font-family:var(--display);font-weight:600;font-size:14px}
+.t-interval{color:var(--ink3)}
+.t-speed{color:var(--violet);font-size:12px}
+.t-split{font-family:var(--display);font-weight:700;font-size:15px;color:var(--purple)}
+.t-diff{font-size:11px;font-style:italic}
+.t-diff.over{color:#dc2626}
+.t-diff.under{color:#15803d}
+.t-diff.ok{color:var(--ink3)}
+
+/* COMPARISON GRID */
+.compare-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin:10px 0}
+.compare-cell{background:#1e1530;border:1px solid var(--border);border-radius:3px;padding:10px;text-align:center}
+.compare-cell.best{background:rgba(124,58,237,0.10);border-color:var(--green)}
+.compare-cell .cc-label{font-family:var(--display);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.compare-cell .cc-time{font-family:var(--display);font-size:18px;font-weight:700;color:var(--ink)}
+.compare-cell .cc-interval{font-size:11px;color:var(--ink3)}
+
+/* PACE CHART */
+.pace-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:4px}
+.pace-bar-label{font-family:var(--display);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink3);min-width:90px;text-align:right}
+.pace-bar-track{flex:1;height:14px;background:var(--bg3);border-radius:2px;overflow:hidden}
+.pace-bar-fill{height:100%;border-radius:2px;transition:width 0.4s ease}
+.pace-bar-val{font-family:var(--display);font-size:11px;color:var(--ink2);min-width:50px}
+
+/* ENTRY FORM */
+.entry-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:10px 0}
+.entry-cell{background:var(--bg2);border:1px solid var(--border);border-radius:3px;padding:10px}
+.entry-cell label{display:block;font-family:var(--display);font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:4px}
+.entry-cell input{width:100%;background:var(--card);border:1px solid var(--border);color:var(--ink);font-family:var(--display);font-size:16px;font-weight:600;padding:6px 8px;border-radius:2px;outline:none;text-align:center}
+.entry-cell input:focus{border-color:var(--gold)}
+.entry-cell input.filled{border-color:var(--gold);background:#fffbf0}
+.entry-cell .e-ideal{font-size:11px;color:var(--ink3);margin-top:3px;font-style:italic}
+.entry-cell .e-status{font-size:11px;margin-top:3px;font-family:var(--display);letter-spacing:0.06em;text-transform:uppercase}
+.e-fast{color:var(--green)}
+.e-slow{color:var(--red)}
+.e-good{color:var(--gold2)}
+
+/* FORMULA DISPLAY */
+.formula-box{background:#1e1530;color:#f8f5ef;border-radius:3px;padding:1rem 1.25rem;margin:10px 0;font-family:var(--display);letter-spacing:0.06em}
+.formula-eq{font-size:18px;font-weight:600;color:var(--gold);margin-bottom:4px}
+.formula-desc{font-size:11px;color:rgba(255,255,255,0.6);font-style:normal;letter-spacing:0.1em;text-transform:uppercase}
+
+/* NOTE */
+.note{background:rgba(196,144,10,0.07);border-left:3px solid var(--gold);padding:8px 12px;font-size:12px;color:var(--ink2);font-style:italic;border-radius:0 2px 2px 0;margin:8px 0;line-height:1.6}
+
+/* TABS within panel */
+.sub-tabs{display:flex;gap:4px;margin-bottom:1rem}
+.sub-tab{padding:6px 14px;font-family:var(--display);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;border:1px solid var(--border2);background:transparent;color:var(--ink3);border-radius:4px;cursor:pointer;transition:all 0.12s}
+.sub-tab.active{background:var(--purple);border-color:var(--red);color:#0d0a14}
+.sub-tab:hover:not(.active){background:var(--bg3);color:var(--purple)}
+.sub-panel{display:none}
+.sub-panel.active{display:block}
+
+/* RESPONSIVE */
+@media(max-width:640px){
+  .tool-tabs{flex-direction:column}
+  .tool-tab{border-right:none;border-bottom:1px solid var(--border)}
+  .tool-tab:last-child{border-bottom:none}
+  .compare-grid{grid-template-columns:repeat(2,1fr)}
+}
+
+@media print{
+  .site-header,.tool-tabs,.print-btn{display:none!important}
+  .tool-panel{display:block!important}
+  body{background:white;color:#1a1035}
+  .card{box-shadow:none;border-color:#ccc}
+}
+
+/* ── LOGIN OVERLAY ── */
+#loginOverlay{position:fixed;inset:0;background:var(--header);display:flex;align-items:center;justify-content:center;z-index:9999;padding:1rem}
+.login-box{background:#ffffff;border-radius:12px;padding:2.5rem 2rem;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.4)}
+.login-logo{font-family:var(--display);font-size:28px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--header);margin-bottom:4px}
+.login-sub{font-size:12px;color:var(--ink3);margin-bottom:2rem;font-style:italic}
+.login-field{margin-bottom:1rem}
+.login-field label{display:block;font-family:var(--display);font-size:11px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:5px}
+.login-field input[type=email],.login-field input[type=password]{width:100%;background:var(--bg2);border:1.5px solid var(--border);color:var(--ink);font-family:var(--serif);font-size:14px;padding:10px 12px;border-radius:6px;outline:none;transition:border-color 0.15s}
+.login-field input[type=email]:focus,.login-field input[type=password]:focus{border-color:var(--purple)}
+.login-btn{width:100%;background:var(--purple);color:#ffffff;border:none;font-family:var(--display);font-size:15px;font-weight:600;letter-spacing:0.1em;text-transform:uppercase;padding:12px;border-radius:6px;cursor:pointer;margin-top:0.5rem;transition:background 0.15s}
+.login-btn:hover{background:var(--purple2)}
+.login-error{font-size:12px;color:#dc2626;margin-top:8px;display:none;text-align:center}
+.login-tagline{margin-top:1.5rem;font-size:11px;color:var(--ink3);text-align:center;font-style:italic;border-top:1px solid var(--border);padding-top:1rem}
+.login-beta{display:inline-block;background:rgba(196,144,10,0.12);color:var(--gold2);font-family:var(--display);font-size:9px;letter-spacing:0.1em;padding:2px 7px;border-radius:3px;margin-left:6px;vertical-align:middle}
+
+/* ── 300H / CONVERSION ── */
+.conv-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin:1rem 0}
+@media(max-width:500px){.conv-grid{grid-template-columns:1fr}}
+.conv-result{background:var(--header);border-radius:6px;padding:1rem 1.25rem;text-align:center}
+.conv-label{font-family:var(--display);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px}
+.conv-value{font-family:var(--display);font-size:26px;font-weight:700;color:#ffffff}
+.conv-unit{font-size:13px;color:var(--gold);margin-left:3px}
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN OVERLAY ═══════════════════════════════════════════════ -->
+<div id="loginOverlay">
+  <div class="login-box">
+    <div class="login-logo" onclick="adminBypass()" style="cursor:default;user-select:none">Derek Drew <span class="login-beta" onclick="adminBypass()" style="pointer-events:auto">BETA</span></div>
+    <div class="login-sub">Hurdle Analysis &amp; Coach's Tool — Sign in to continue</div>
+    <div class="login-field">
+      <label>Email</label>
+      <input type="email" id="loginEmail" placeholder="coach@example.com" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-field">
+      <label>Password</label>
+      <input type="password" id="loginPass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="login-btn" onclick="doLogin()">Sign In</button>
+    <div class="login-error" id="loginError">Incorrect email or password. Please try again.</div>
+    <div class="login-tagline">
+      Building the future of track &amp; field coaching.<br>
+      <span style="color:var(--gold2);font-style:normal;font-family:var(--display);letter-spacing:0.06em;font-size:10px">POWERED BY ROSS &amp; HERNANDEZ DE ROSS CRITICAL ZONES METHODOLOGY</span>
+    </div>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="logo">
+    Derek Drew
+    <span class="logo-sub">Hurdle Analysis Tool</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span id="loggedInUser" style="font-family:var(--display);font-size:11px;letter-spacing:0.06em;color:rgba(255,255,255,0.6)"></span>
+    <button class="print-btn" onclick="window.print()">Print / PDF</button>
+    <button class="print-btn" onclick="doLogout()">Sign Out</button>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-kicker">Derek Drew — Powered by Ross & Hernandez de Ross Critical Zones System</div>
+    <h1 class="hero-title">Hurdle <em>Touchdown</em><br>Analysis Tool</h1>
+    <p class="hero-desc">Based on Ross & Hernandez de Ross split timing ratios from The Hurdler's Bible 2. Enter times to compare against ideal splits, calculate practice formulas, and analyze race performance for 110m and 400m hurdles.</p>
+  </div>
+</div>
+
+<div class="container">
+
+  <div class="tool-tabs">
+    <button class="tool-tab active" onclick="switchTool(0)">Men's 110m</button>
+    <button class="tool-tab" onclick="switchTool(1)">Women's 100m</button>
+    <button class="tool-tab" onclick="switchTool(2)">400m Splits</button>
+    <button class="tool-tab" onclick="switchTool(3)">300H Splits</button>
+    <button class="tool-tab" onclick="switchTool(4)">Race Analyzer</button>
+    <button class="tool-tab" onclick="switchTool(5)">Practice Formula</button>
+    <button class="tool-tab" onclick="switchTool(6)">Reference Tables</button>
+  </div>
+
+  <!-- ═══ TOOL 1: 110m SPLITS ═══════════════════════════════════════════ -->
+  <div class="tool-panel active" id="panel-0">
+    <div class="card">
+      <div class="card-title">110m High Hurdles — Ideal Split Calculator</div>
+      <div class="card-desc">Select a goal finish time to see Ross & Hernandez's ideal touchdown splits at each hurdle, with interval times and speed per hurdle.</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Goal Time</span>
+        <select id="goalTime110" onchange="render110Table()">
+          <option value="12.5">12.5 sec (Elite)</option>
+          <option value="13.0">13.0 sec</option>
+          <option value="13.6" selected>13.6 sec</option>
+          <option value="15.0">15.0 sec</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="customTime110" step="0.01" min="12" max="20" placeholder="e.g. 14.2" style="display:none" oninput="render110Table()">
+      </div>
+      <div id="result110Banner"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Hurdle-by-Hurdle Split Times</div>
+      <div id="table110"></div>
+      <div class="note">Critical Zone #1: touchdown after hurdle #3 · Critical Zone #2: hurdle #8 takeoff · Critical Zone #3: finish line. Splits measured on descent side of each hurdle.</div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Pace Visualization</div>
+      <div id="paceViz110"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TOOL 2: WOMEN'S 100m SPLITS ══════════════════════════════════ -->
+  <div class="tool-panel" id="panel-1">
+    <div class="card">
+      <div class="card-title">Women's 100m Hurdles — Ideal Split Calculator</div>
+      <div class="card-desc">Select a goal finish time to see ideal touchdown splits at each hurdle. Data from The Hurdler's Bible 2 computer analysis of women's 100m hurdle race patterns.</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Goal Time</span>
+        <select id="goalTime100w" onchange="render100wTable()">
+          <option value="12.5">12.5 sec (Elite)</option>
+          <option value="13.0">13.0 sec</option>
+          <option value="13.6" selected>13.6 sec</option>
+          <option value="15.0">15.0 sec</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="customTime100w" step="0.01" min="11" max="20" placeholder="e.g. 13.2" style="display:none" oninput="render100wTable()">
+      </div>
+      <div id="result100wBanner"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Hurdle-by-Hurdle Split Times</div>
+      <div id="table100w"></div>
+      <div class="note">Women's 100m hurdles: 10 hurdles at 8.5m height, spaced 8.5m apart. Air time = 36m · Track time = 64m. The peak velocity interval occurs between hurdles 5 and 6 across all performance levels.</div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Pace Visualization</div>
+      <div id="paceViz100w"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TOOL 3: 400m SPLITS ═══════════════════════════════════════════ -->
+  <div class="tool-panel" id="panel-2">
+    <div class="card">
+      <div class="card-title">400m Hurdle Race — Ideal Split Calculator</div>
+      <div class="card-desc">Select a goal finish time to see ideal touchdown times after each of the 10 hurdles in the 400m race.</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Goal Time</span>
+        <select id="goalTime400" onchange="render400Table()">
+          <option value="46.0">46.0 sec (Elite)</option>
+          <option value="47.0">47.0 sec</option>
+          <option value="48.0" selected>48.0 sec</option>
+          <option value="50.0">50.0 sec</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="customTime400" step="0.01" min="44" max="70" placeholder="e.g. 52.0" style="display:none" oninput="render400Table()">
+      </div>
+      <div id="result400Banner"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Hurdle-by-Hurdle Split Times</div>
+      <div id="table400"></div>
+      <div class="note">A 0.70 sec difference between the 1st and 10th hurdle interval is consistently observed across all performance levels — the fatigue signature of the 400m hurdle race.</div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Pace Visualization</div>
+      <div id="paceViz400"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TOOL 3: 300H SPLITS & CONVERSION ════════════════════════════ -->
+  <div class="tool-panel" id="panel-3">
+
+    <div class="card">
+      <div class="card-title">300m Hurdles — Ideal Split Calculator</div>
+      <div class="card-desc">The 300H follows the same Ross &amp; Hernandez de Ross interval ratio methodology applied to 8 hurdles over 300m. Select a goal time to see ideal touchdown splits and projected 400H equivalent.</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Goal Time</span>
+        <select id="goalTime300h" onchange="render300hTable()">
+          <option value="35.0">35.0 sec (Elite)</option>
+          <option value="37.0">37.0 sec</option>
+          <option value="39.0" selected>39.0 sec</option>
+          <option value="42.0">42.0 sec</option>
+          <option value="custom">Custom…</option>
+        </select>
+        <input type="number" id="customTime300h" step="0.01" min="32" max="60" placeholder="e.g. 38.5" style="display:none" oninput="render300hTable()">
+      </div>
+      <div id="result300hBanner"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Hurdle-by-Hurdle Split Times</div>
+      <div id="table300h"></div>
+      <div class="note">300H has 8 hurdles (same spacing as 400H for first 8). Fatigue sets in earlier — the interval drop between H1 and H8 is typically 0.4–0.5 sec. The race demands explosive start speed plus sustained drive through the final 3 hurdles.</div>
+    </div>
+
+    <div class="card">
+      <div class="section-head">Pace Visualization</div>
+      <div id="paceViz300h"></div>
+    </div>
+
+    <!-- 300H → 400H CONVERSION ─────────────────────────── -->
+    <div class="card">
+      <div class="card-title">300H → 400H Conversion</div>
+      <div class="card-desc">Estimate an athlete's 400H potential from their 300H time using the Ross &amp; Hernandez de Ross fatigue and distance ratio model. The 400H covers 100 more meters with 2 additional hurdles — conditioning and race fitness are the primary variable beyond raw speed.</div>
+
+      <div class="formula-box" style="margin-bottom:1rem">
+        <div class="formula-eq">400H ≈ (300H × 1.333) + Fatigue Factor</div>
+        <div class="formula-desc">Distance ratio method · Fatigue factor accounts for lactic accumulation over the additional 100m · Range: +3.5 to +5.5 sec depending on conditioning level</div>
+      </div>
+
+      <div class="ctrl-row">
+        <span class="ctrl-label">300H Time</span>
+        <input type="number" id="conv300hTime" step="0.01" min="32" max="65" placeholder="e.g. 38.50" oninput="calc300hConversion()">
+        <span style="font-family:var(--display);font-size:11px;color:var(--ink3);letter-spacing:0.06em">seconds</span>
+      </div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Fitness Level</span>
+        <select id="conv300hFitness" onchange="calc300hConversion()">
+          <option value="elite">Elite — Well-conditioned 400H specialist (+3.5s)</option>
+          <option value="good" selected>Good — Trained athlete, some 400H work (+4.5s)</option>
+          <option value="developing">Developing — Limited 400H-specific training (+5.5s)</option>
+        </select>
+      </div>
+
+      <div id="conv300hResult"></div>
+
+      <div style="margin-top:1rem">
+        <div class="section-head" style="margin-bottom:8px">Conversion reference table</div>
+        <div style="overflow-x:auto">
+          <table class="hurdle-table" id="convRefTable"></table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ═══ TOOL 4: RACE ANALYZER ═══════════════════════════════════════ -->
+  <div class="tool-panel" id="panel-4">
+
+    <!-- Event selector + global controls -->
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+        <div>
+          <div class="section-head" style="margin-bottom:6px">Event</div>
+          <div class="sub-tabs" style="margin-bottom:0">
+            <button class="sub-tab active" onclick="raSetEvent('110m')">Men's 110m</button>
+            <button class="sub-tab" onclick="raSetEvent('100w')">Women's 100m</button>
+            <button class="sub-tab" onclick="raSetEvent('300h')">300m Hurdles</button>
+            <button class="sub-tab" onclick="raSetEvent('400m')">400m</button>
+          </div>
+        </div>
+        <div>
+          <div class="section-head" style="margin-bottom:6px">Ideal target</div>
+          <select id="raIdealTarget" onchange="raRender()" style="background:var(--bg2);border:1px solid var(--border2);color:var(--ink);font-family:var(--serif);font-size:13px;padding:6px 10px;border-radius:4px;outline:none"></select>
+        </div>
+        <div style="margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end">
+          <button onclick="raAddEntry()" id="raAddBtn" style="background:var(--purple);color:#ffffff;border:none;font-family:var(--display);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;padding:8px 16px;border-radius:4px;cursor:pointer">+ Add Entry</button>
+          <button onclick="raClearAll()" style="background:transparent;color:var(--ink3);border:1px solid var(--border);font-family:var(--display);font-size:12px;letter-spacing:0.1em;text-transform:uppercase;padding:8px 14px;border-radius:2px;cursor:pointer">Clear All</button>
+        </div>
+      </div>
+      <div class="note" style="margin-top:10px">Up to 4 entries per analysis — use for athlete vs athlete, or the same athlete across different races.</div>
+    </div>
+
+    <!-- Entry cards (up to 4) -->
+    <div id="raEntryCards"></div>
+
+    <!-- Results -->
+    <div id="raResults"></div>
+
+  </div>
+
+  <!-- ═══ TOOL 4: PRACTICE FORMULA ════════════════════════════════════ -->
+  <div class="tool-panel" id="panel-5">
+    <div class="card">
+      <div class="card-title">Practice Formula — FAT Conversion</div>
+      <div class="card-desc">Applies to both the <strong>110m High Hurdles</strong> and <strong>400m Hurdles</strong>. When hurdles are removed from the flight during practice (Configurations #1–4), add a FAT differential to convert your practice time to a competition equivalent. The same configuration logic applies to both events — simply enter the time from whichever event your athlete is running.</div>
+      <div class="formula-box">
+        <div class="formula-eq">Competition FAT ≈ Practice Time + Differential</div>
+        <div class="formula-desc">0.24 base + 0.12 per omitted hurdle | Total for hurdles 4–7 removed: +0.72</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Configuration Calculator</div>
+      <div class="card-desc">Select which hurdles are removed from flight during practice, enter your practice trial time, and get the estimated competition equivalent.</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Configuration</span>
+        <select id="configSelect" onchange="updateConfig()">
+          <option value="1">Config #1 — Hurdles 4, 5, 6, 7 removed</option>
+          <option value="2">Config #2 — Hurdles 6, 7 removed</option>
+          <option value="3">Config #3 — Hurdles 4, 5 removed</option>
+          <option value="4">Config #4 — Hurdles 1–5 removed (finish focus)</option>
+          <option value="supercharged">Supercharged — Hurdles 4, 5, 6, 7 removed (125m)</option>
+        </select>
+      </div>
+      <div id="configDesc" class="note" style="margin:8px 0 12px"></div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">Practice Time</span>
+        <input type="number" id="practiceTime" step="0.01" min="10" max="20" placeholder="e.g. 12.50" oninput="calcPractice()">
+        <span style="font-family:var(--display);font-size:11px;color:var(--ink3);letter-spacing:0.06em">seconds (hand time)</span>
+      </div>
+      <div id="practiceResult"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">55m Indoor Hurdles Formula</div>
+      <div class="card-desc">Athletes running under 7.10 for 55m have the capability of running 13.20 or better for 110m. Use this tool to estimate your 110m potential.</div>
+      <div class="ctrl-row">
+        <span class="ctrl-label">55m Time</span>
+        <input type="number" id="time55m" step="0.01" min="6" max="10" placeholder="e.g. 7.10" oninput="calc55m()">
+      </div>
+      <div id="result55m"></div>
+    </div>
+  </div>
+
+  <!-- ═══ TOOL 6: REFERENCE TABLES ════════════════════════════════════ -->
+  <div class="tool-panel" id="panel-6">
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="switchRef(0)">Men's 110m</button>
+      <button class="sub-tab" onclick="switchRef(1)">Women's 100m</button>
+      <button class="sub-tab" onclick="switchRef(2)">400m Table</button>
+      <button class="sub-tab" onclick="switchRef(3)">300H Table</button>
+      <button class="sub-tab" onclick="switchRef(4)">Air vs Track</button>
+    </div>
+
+    <div class="sub-panel active" id="ref-0">
+      <div class="card">
+        <div class="card-title">Table 1 — Split Timing for Men's 110m Hurdles</div>
+        <div class="card-desc">From The Hurdler's Bible 2, Table 1. Times shown are cumulative from the start (time at landing after each hurdle).</div>
+        <div id="refTable110"></div>
+      </div>
+    </div>
+
+    <div class="sub-panel" id="ref-1">
+      <div class="card">
+        <div class="card-title">Women's 100m Hurdles — Split Timing Reference</div>
+        <div class="card-desc">From The Hurdler's Bible 2 computer analysis. Times shown are cumulative from the start (time at landing after each hurdle).</div>
+        <div id="refTable100w"></div>
+      </div>
+    </div>
+
+    <div class="sub-panel" id="ref-2">
+      <div class="card">
+        <div class="card-title">Table 2 — Split Timings for 400m Hurdles</div>
+        <div class="card-desc">From The Hurdler's Bible 2, Table 2. Based on split timing pattern shown by Jamoghan Singh.</div>
+        <div id="refTable400"></div>
+      </div>
+    </div>
+
+    <div class="sub-panel" id="ref-3">
+      <div class="card">
+        <div class="card-title">300m Hurdles — Split Timing Reference</div>
+        <div class="card-desc">Derived from Ross &amp; Hernandez de Ross interval ratio methodology applied to 300m hurdle race distance and 8-hurdle configuration. Includes 300H → 400H conversion estimates.</div>
+        <div id="refTable300h"></div>
+      </div>
+    </div>
+
+    <div class="sub-panel" id="ref-4">
+      <div class="card">
+        <div class="card-title">Air Time vs Track Time Breakdown</div>
+        <div class="card-desc">Every 100/110m hurdle race can be divided into Air Time (flight over hurdles) and Track Time (running portion). Understanding this ratio helps athletes focus on where the race is won.</div>
+        <div style="margin:1rem 0">
+          <table class="hurdle-table">
+            <thead><tr><th>Event</th><th>Air Time</th><th>Track Time</th><th>% Air</th><th>% Track</th></tr></thead>
+            <tbody>
+              <tr><td>Men's 110m High Hurdles</td><td>34.5 m</td><td>75.5 m</td><td>31.4%</td><td>68.6%</td></tr>
+              <tr><td>Women's 100m Hurdles</td><td>36 m</td><td>64 m</td><td>36.0%</td><td>64.0%</td></tr>
+              <tr><td>Men's 400m Hurdles</td><td>37.2 m</td><td>362.8 m</td><td>9.3%</td><td>90.7%</td></tr>
+              <tr><td>Women's 400m Hurdles</td><td>36 m</td><td>364 m</td><td>9.0%</td><td>91.0%</td></tr>
+              <tr><td>300m Hurdles (8 hurdles)</td><td>~28 m</td><td>~272 m</td><td>9.3%</td><td>90.7%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="note">The race is won on the track, not in the air. For 110m, 68.6% of distance is running — this is where stride pattern, rhythm, and spot control determine outcomes.</div>
+        <div style="margin-top:1.5rem">
+          <div class="section-head">Maximal Velocity by Race Time (110m)</div>
+          <table class="hurdle-table" style="margin-top:8px">
+            <thead><tr><th>Race Time</th><th>Max Velocity</th><th>Max Acceleration</th></tr></thead>
+            <tbody>
+              <tr><td>15.0 sec</td><td>18.78 ft/sec</td><td>17.64 ft/sec²</td></tr>
+              <tr><td>13.6 sec</td><td>20.71 ft/sec</td><td>21.0 ft/sec²</td></tr>
+              <tr><td>13.0 sec</td><td>21.67 ft/sec</td><td>—</td></tr>
+              <tr><td>12.5 sec</td><td>22.54 ft/sec</td><td>28.6 ft/sec²</td></tr>
+            </tbody>
+          </table>
+          <div class="note">Going from 13.6 → 12.5 requires only a 3% increase in effort (acceleration ratio: 28.6/21.0 – 1 = 0.21, vs 20.92/17.64 – 1 = 0.18). The dream of 12.5 is within reach.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<script>
+// ═══════════════════════════════════════════════════════════════════
+// DATA — directly from Hurdler's Bible 2, Tables 1 & 2
+// ═══════════════════════════════════════════════════════════════════
+
+// 110m Table 1: cumulative touchdown times after each hurdle
+// Format: { finish, intervals[10], cumulative[10], speeds[10] }
+// Intervals = time between each marker (start→H1, H1→H2, etc.)
+// Source: Ross/Hernandez Table 1
+
+const DATA_110 = {
+  15.0: {
+    intervals: [2.40, 1.30, 1.20, 1.20, 1.10, 1.20, 1.20, 1.20, 1.30, 1.30, 1.60],
+    speeds:    [8.33,15.33,16.88,16.88,18.78,16.88,16.88,16.88,15.33,15.33,12.12],
+    finish: 15.0
+  },
+  13.6: {
+    intervals: [2.20, 1.20, 1.10, 1.10, 1.00, 1.10, 1.10, 1.10, 1.20, 1.20, 1.40],
+    speeds:    [9.20,16.90,18.62,18.62,20.71,18.62,18.62,18.62,16.90,16.90,13.37],
+    finish: 13.6
+  },
+  13.0: {
+    intervals: [2.10, 1.10, 1.03, 1.03, 0.95, 1.03, 1.03, 1.03, 1.15, 1.15, 1.40],
+    speeds:    [9.62,17.68,19.47,19.47,21.67,19.47,19.47,19.47,17.68,17.68,14.00],
+    finish: 13.0
+  },
+  12.5: {
+    intervals: [2.00, 1.10, 0.99, 0.99, 0.89, 0.99, 0.99, 0.99, 1.08, 1.08, 1.40],
+    speeds:    [10.00,18.39,20.25,20.25,22.54,20.25,20.25,20.25,18.39,18.39,14.55],
+    finish: 12.5
+  }
+};
+
+// ═══════════════════════════════════════════════════════════════════
+// WOMEN'S 100m HURDLES DATA — from Hurdler's Bible 2 computer analysis
+// 10 hurdles + finish (12 segments total including start → H1)
+// ═══════════════════════════════════════════════════════════════════
+// Note: Women's 100m has 10 hurdles. Segments: start→H1, H1→H2 ... H10→Finish
+// Source pages 49-52 of the book
+
+const DATA_100W = {
+  15.0: {
+    // page 49: ? 15.0s. Cumulative: 2.40, 3.70, 4.89, 6.07, 7.26, 8.32, 9.51, 10.69, 12.00, 13.30, 14.95
+    intervals: [2.40, 1.30, 1.19, 1.18, 1.19, 1.06, 1.19, 1.18, 1.31, 1.30, 1.65],
+    speeds:    [8.33, 15.33, 16.88, 16.88, 16.88, 18.78, 16.88, 16.88, 15.33, 15.33, 12.12],
+    finish: 14.95
+  },
+  13.6: {
+    // page 50: ? 13.6s Real. Cumulative: 2.16, 3.36, 4.43, 5.51, 6.58, 7.55, 8.62, 9.70, 10.88, 12.06, 13.56
+    intervals: [2.16, 1.20, 1.07, 1.08, 1.07, 0.97, 1.07, 1.08, 1.18, 1.18, 1.50],
+    speeds:    [9.19, 16.90, 18.62, 18.62, 18.62, 20.71, 18.62, 18.62, 16.90, 16.90, 16.90],
+    finish: 13.56
+  },
+  13.0: {
+    // page 51: 13.0s probability. Cumulative: 2.08, 3.21, 4.24, 5.26, 6.29, 7.21, 8.24, 9.27, 10.40, 11.53, 12.96
+    intervals: [2.08, 1.13, 1.03, 1.02, 1.03, 0.92, 1.03, 1.03, 1.13, 1.13, 1.43],
+    speeds:    [9.62, 17.68, 19.47, 19.47, 19.47, 21.67, 19.47, 19.47, 17.68, 17.68, 13.99],
+    finish: 12.96
+  },
+  12.5: {
+    // page 52: ? 12.5s. Cumulative: 2.00, 3.09, 4.07, 5.06, 6.05, 6.94, 7.92, 8.91, 10.00, 11.09, 12.46
+    intervals: [2.00, 1.09, 0.98, 0.99, 0.99, 0.89, 0.98, 0.99, 1.09, 1.09, 1.37],
+    speeds:    [10.00, 18.39, 20.25, 20.25, 20.25, 22.54, 20.25, 20.25, 18.39, 18.39, 14.55],
+    finish: 12.46
+  }
+};
+
+// Sub-13 additional data points from Table (12.60 – 12.95 range)
+const DATA_110_SUB13 = {
+  12.60: { intervals: [2.10,1.10,0.99,0.99,0.89,0.99,0.99,0.99,1.08,1.08,1.40], finish: 12.60 },
+  12.70: { intervals: [2.15,1.15,0.99,0.99,0.89,0.99,0.99,0.99,1.08,1.08,1.40], finish: 12.70 },
+  12.80: { intervals: [2.15,1.15,0.99,0.99,0.99,0.99,0.99,0.99,1.08,1.08,1.40], finish: 12.80 },
+  12.85: { intervals: [2.20,1.15,0.99,0.99,0.99,0.99,0.99,0.99,1.08,1.08,1.40], finish: 12.85 },
+  12.90: { intervals: [2.25,1.15,0.99,0.99,0.99,0.99,0.99,0.99,1.08,1.08,1.40], finish: 12.90 },
+  12.95: { intervals: [2.25,1.15,0.99,0.99,0.99,0.99,0.99,0.99,1.08,1.08,1.40], finish: 12.95 },
+};
+
+// 400m Table 2: cumulative touchdown times
+const DATA_400 = {
+  50.0: {
+    intervals: [5.94, 4.17, 4.17, 4.17, 4.17, 4.27, 4.27, 4.35, 4.48, 4.69, 5.21],
+    speeds:    [3.37, 4.80, 4.80, 4.80, 4.80, 4.68, 4.68, 4.60, 4.47, 4.27, 3.84],
+    finish: 50.0
+  },
+  48.0: {
+    intervals: [5.70, 4.00, 4.00, 4.00, 4.00, 4.10, 4.10, 4.18, 4.30, 4.50, 5.00],
+    speeds:    [3.51, 5.00, 5.00, 5.00, 5.00, 4.88, 4.88, 4.79, 4.65, 4.44, 4.00],
+    finish: 48.0
+  },
+  47.0: {
+    intervals: [5.58, 3.92, 3.92, 3.92, 3.92, 4.01, 4.01, 4.09, 4.21, 4.41, 4.90],
+    speeds:    [3.58, 5.11, 5.11, 5.11, 5.11, 4.98, 4.98, 4.89, 4.75, 4.54, 4.08],
+    finish: 47.0
+  },
+  46.0: {
+    intervals: [5.46, 3.83, 3.83, 3.83, 3.83, 3.93, 3.93, 4.00, 4.12, 4.31, 4.79],
+    speeds:    [3.66, 5.22, 5.22, 5.22, 5.22, 5.09, 5.09, 5.00, 4.85, 4.64, 4.17],
+    finish: 46.0
+  }
+};
+
+const HURDLE_LABELS_110 = ['H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','Finish'];
+const HURDLE_LABELS_400 = ['H1','H2','H3','H4','H5','H6','H7','H8','H9','H10','Finish'];
+const CRITICAL_ZONES_110 = [2, 7, 10]; // 0-indexed: after H3, H8, Finish
+
+// ═══════════════════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════════════════
+
+function getCumulative(intervals) {
+  const c = [];
+  let sum = 0;
+  for (const iv of intervals) { sum += iv; c.push(+sum.toFixed(3)); }
+  return c;
+}
+
+function interpolateData110(targetTime) {
+  const keys = [12.5, 13.0, 13.6, 15.0].sort((a,b)=>a-b);
+  if (targetTime <= 12.5) return DATA_110[12.5];
+  if (targetTime >= 15.0) return DATA_110[15.0];
+  // find bracketing keys
+  let lo = keys[0], hi = keys[keys.length-1];
+  for (let i=0; i<keys.length-1; i++) {
+    if (targetTime >= keys[i] && targetTime <= keys[i+1]) { lo=keys[i]; hi=keys[i+1]; break; }
+  }
+  if (DATA_110[targetTime]) return DATA_110[targetTime];
+  const t = (targetTime - lo)/(hi - lo);
+  const dlo = DATA_110[lo], dhi = DATA_110[hi];
+  return {
+    intervals: dlo.intervals.map((v,i) => +(v + t*(dhi.intervals[i]-v)).toFixed(3)),
+    speeds:    dlo.speeds   .map((v,i) => +(v + t*(dhi.speeds[i]   -v)).toFixed(2)),
+    finish: targetTime
+  };
+}
+
+function interpolateData100w(targetTime) {
+  const keys = [12.5, 13.0, 13.6, 15.0].sort((a,b)=>a-b);
+  if (targetTime <= 12.5) return DATA_100W[12.5];
+  if (targetTime >= 15.0) return DATA_100W[15.0];
+  let lo = keys[0], hi = keys[keys.length-1];
+  for (let i=0; i<keys.length-1; i++) {
+    if (targetTime >= keys[i] && targetTime <= keys[i+1]) { lo=keys[i]; hi=keys[i+1]; break; }
+  }
+  if (DATA_100W[targetTime]) return DATA_100W[targetTime];
+  const t = (targetTime - lo)/(hi - lo);
+  const dlo = DATA_100W[lo], dhi = DATA_100W[hi];
+  return {
+    intervals: dlo.intervals.map((v,i) => +(v + t*(dhi.intervals[i]-v)).toFixed(3)),
+    speeds:    dlo.speeds   .map((v,i) => +(v + t*(dhi.speeds[i]   -v)).toFixed(2)),
+    finish: targetTime
+  };
+}
+
+function render100wTable() {
+  const t = getTargetTime('goalTime100w', 'customTime100w');
+  if (!t) return;
+  const data = interpolateData100w(t);
+  const cum = getCumulative(data.intervals);
+
+  document.getElementById('result100wBanner').innerHTML = `
+    <div class="result-banner">
+      <div><div class="result-label">Goal Finish Time</div><div class="result-value">${t.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H1</div><div class="result-value">${cum[0].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">Peak Velocity (H5→H6)</div><div class="result-value">${data.intervals[5].toFixed(3)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H10</div><div class="result-value">${cum[9].toFixed(2)}<span class="result-unit">sec</span></div></div>
+    </div>`;
+
+  let html = `<table class="hurdle-table">
+    <thead><tr><th>Point</th><th>Interval (sec)</th><th>Cumulative (sec)</th><th>Speed (ft/sec)</th><th>Note</th></tr></thead><tbody>`;
+
+  for (let i=0; i<=10; i++) {
+    const isFinish = i===10;
+    const label = isFinish ? 'Finish Line' : `Hurdle ${i+1}`;
+    const isPeak = i===5; // H5→H6 is peak velocity zone
+    const isFinishZone = i>=8 && i<10;
+    const cls = isPeak ? 'highlight' : '';
+    const note = isPeak ? '⚡ Peak velocity' : isFinishZone ? '↓ Decel zone' : '';
+    html += `<tr class="${cls}">
+      <td>${label}</td>
+      <td class="t-interval">${data.intervals[i]?.toFixed(3)||'—'}</td>
+      <td class="t-split">${cum[i]?.toFixed(2)||'—'}</td>
+      <td class="t-speed">${data.speeds&&data.speeds[i]?data.speeds[i].toFixed(2):'—'}</td>
+      <td style="font-family:var(--display);font-size:10px;letter-spacing:0.08em;color:var(--red)">${note}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  document.getElementById('table100w').innerHTML = html;
+  renderPaceViz100w(data, cum);
+}
+
+function renderPaceViz100w(data, cum) {
+  const maxSpeed = Math.max(...(data.speeds||[]).filter(Boolean));
+  let html = '';
+  for (let i=0; i<11; i++) {
+    const label = i===10 ? 'Finish' : `H${i+1}`;
+    const spd = data.speeds && data.speeds[i] ? data.speeds[i] : 0;
+    const pct = maxSpeed > 0 ? (spd/maxSpeed*100) : 0;
+    const isPeak = i===5;
+    const color = isPeak ? 'var(--gold)' : i<3 ? '#d4a017' : i<6 ? '#a78bfa' : 'var(--ink3)';
+    html += `<div class="pace-bar-row">
+      <div class="pace-bar-label">${label}</div>
+      <div class="pace-bar-track"><div class="pace-bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
+      <div class="pace-bar-val">${spd.toFixed(2)} ft/s</div>
+    </div>`;
+  }
+  document.getElementById('paceViz100w').innerHTML = html;
+}
+
+function interpolateData400(targetTime) {
+  const keys = [46.0, 47.0, 48.0, 50.0];
+  if (targetTime <= 46.0) return DATA_400[46.0];
+  if (targetTime >= 50.0) return DATA_400[50.0];
+  let lo = keys[0], hi = keys[keys.length-1];
+  for (let i=0; i<keys.length-1; i++) {
+    if (targetTime >= keys[i] && targetTime <= keys[i+1]) { lo=keys[i]; hi=keys[i+1]; break; }
+  }
+  if (DATA_400[targetTime]) return DATA_400[targetTime];
+  const t = (targetTime - lo)/(hi - lo);
+  const dlo = DATA_400[lo], dhi = DATA_400[hi];
+  return {
+    intervals: dlo.intervals.map((v,i) => +(v + t*(dhi.intervals[i]-v)).toFixed(3)),
+    speeds:    dlo.speeds   .map((v,i) => +(v + t*(dhi.speeds[i]   -v)).toFixed(2)),
+    finish: targetTime
+  };
+}
+
+function getTargetTime(selectId, customId) {
+  const sel = document.getElementById(selectId).value;
+  if (sel === 'custom') {
+    document.getElementById(customId).style.display='inline-block';
+    const v = parseFloat(document.getElementById(customId).value);
+    return isNaN(v) ? null : v;
+  }
+  document.getElementById(customId).style.display='none';
+  return parseFloat(sel);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER 110m TABLE
+// ═══════════════════════════════════════════════════════════════════
+
+function render110Table() {
+  const t = getTargetTime('goalTime110', 'customTime110');
+  if (!t) return;
+  const data = interpolateData110(t);
+  const cum = getCumulative(data.intervals);
+
+  document.getElementById('result110Banner').innerHTML = `
+    <div class="result-banner">
+      <div><div class="result-label">Goal Finish Time</div><div class="result-value">${t.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H1 (1st split)</div><div class="result-value">${cum[0].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">CZ #1 (after H3)</div><div class="result-value">${cum[2].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">CZ #2 (after H8)</div><div class="result-value">${cum[7].toFixed(2)}<span class="result-unit">sec</span></div></div>
+    </div>`;
+
+  let html = `<table class="hurdle-table">
+    <thead><tr><th>Point</th><th>Interval (sec)</th><th>Cumulative (sec)</th><th>Speed (ft/sec)</th><th>Zone</th></tr></thead><tbody>`;
+  
+  for (let i=0; i<=10; i++) {
+    const isFinish = i===10;
+    const label = isFinish ? 'Finish Line' : `Hurdle ${i+1}`;
+    const isCZ = CRITICAL_ZONES_110.includes(i);
+    const czLabel = i===2 ? '⚡ CZ #1' : i===7 ? '⚡ CZ #2' : i===10 ? '⚡ CZ #3' : '';
+    const interval = data.intervals[i] ? data.intervals[i].toFixed(2) : '—';
+    const cumStr = cum[i] ? cum[i].toFixed(2) : '—';
+    const speed = (data.speeds && data.speeds[i]) ? data.speeds[i].toFixed(2) : '—';
+    html += `<tr class="${isCZ?'highlight':''}">
+      <td>${label}</td>
+      <td class="t-interval">${interval}</td>
+      <td class="t-split">${cumStr}</td>
+      <td class="t-speed">${speed}</td>
+      <td style="font-family:var(--display);font-size:10px;letter-spacing:0.08em;color:var(--red)">${czLabel}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  document.getElementById('table110').innerHTML = html;
+  renderPaceViz110(data, cum);
+}
+
+function renderPaceViz110(data, cum) {
+  const maxSpeed = Math.max(...(data.speeds||[]).filter(Boolean));
+  let html = '';
+  for (let i=0; i<11; i++) {
+    const label = i===10 ? 'Finish' : `H${i+1}`;
+    const spd = data.speeds && data.speeds[i] ? data.speeds[i] : 0;
+    const pct = maxSpeed > 0 ? (spd/maxSpeed*100) : 0;
+    const isCZ = CRITICAL_ZONES_110.includes(i);
+    const color = isCZ ? 'var(--gold)' : i<4 ? '#d4a017' : i<8 ? '#a78bfa' : 'var(--ink3)';
+    html += `<div class="pace-bar-row">
+      <div class="pace-bar-label">${label}</div>
+      <div class="pace-bar-track"><div class="pace-bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
+      <div class="pace-bar-val">${spd.toFixed(2)} ft/s</div>
+    </div>`;
+  }
+  document.getElementById('paceViz110').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RENDER 400m TABLE
+// ═══════════════════════════════════════════════════════════════════
+
+function render400Table() {
+  const t = getTargetTime('goalTime400', 'customTime400');
+  if (!t) return;
+  const data = interpolateData400(t);
+  const cum = getCumulative(data.intervals);
+
+  document.getElementById('result400Banner').innerHTML = `
+    <div class="result-banner">
+      <div><div class="result-label">Goal Finish Time</div><div class="result-value">${t.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H1</div><div class="result-value">${cum[0].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H10</div><div class="result-value">${cum[9].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">H1→H10 Drop</div><div class="result-value">${(data.intervals[9]-data.intervals[0]).toFixed(2)}<span class="result-unit">sec</span></div></div>
+    </div>`;
+
+  let html = `<table class="hurdle-table">
+    <thead><tr><th>Point</th><th>Interval (sec)</th><th>Cumulative (sec)</th><th>Speed (ft/sec)</th></tr></thead><tbody>`;
+
+  for (let i=0; i<=10; i++) {
+    const isFinish = i===10;
+    const label = isFinish ? 'Finish Line' : `Hurdle ${i+1}`;
+    const isFatigue = i >= 7 && i < 10;
+    html += `<tr class="${isFatigue?'highlight':''}">
+      <td>${label}</td>
+      <td class="t-interval">${data.intervals[i]?.toFixed(2)||'—'}</td>
+      <td class="t-split">${cum[i]?.toFixed(2)||'—'}</td>
+      <td class="t-speed">${data.speeds&&data.speeds[i]?data.speeds[i].toFixed(2):'—'}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  document.getElementById('table400').innerHTML = html;
+  renderPaceViz400(data, cum);
+}
+
+function renderPaceViz400(data, cum) {
+  const maxSpeed = Math.max(...(data.speeds||[]).filter(Boolean));
+  let html = '';
+  for (let i=0; i<11; i++) {
+    const label = i===10?'Finish':`H${i+1}`;
+    const spd = data.speeds&&data.speeds[i]?data.speeds[i]:0;
+    const pct = maxSpeed>0?(spd/maxSpeed*100):0;
+    const color = i<2?'var(--gold)':i<6?'var(--green)':i<9?'var(--ink3)':'var(--red)';
+    html += `<div class="pace-bar-row">
+      <div class="pace-bar-label">${label}</div>
+      <div class="pace-bar-track"><div class="pace-bar-fill" style="width:${pct.toFixed(1)}%;background:${color}"></div></div>
+      <div class="pace-bar-val">${spd.toFixed(2)} ft/s</div>
+    </div>`;
+  }
+  document.getElementById('paceViz400').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// RACE ANALYZER
+// ═══════════════════════════════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════════════
+// RACE ANALYZER — Multi-athlete comparison (up to 4 entries)
+// ═══════════════════════════════════════════════════════════════════
+
+const RA_MAX = 4;
+const RA_COLORS = ['#c4900a','#4c2fa0','#7c5cbf','#1d6a3a'];
+const RA_COLOR_NAMES = ['Gold','Blue','Green','Red'];
+
+let raEvent = '110m';
+let raEntries = []; // [{id, label, times:[11 values|null]}]
+let raNextId = 0;
+
+const RA_TARGETS = {
+  '110m': [{v:12.5,l:'12.5 sec'},{v:13.0,l:'13.0 sec'},{v:13.6,l:'13.6 sec (default)'},{v:15.0,l:'15.0 sec'}],
+  '100w': [{v:12.5,l:'12.5 sec'},{v:13.0,l:'13.0 sec'},{v:13.6,l:'13.6 sec (default)'},{v:15.0,l:'15.0 sec'}],
+  '300h': [{v:35.0,l:'35.0 sec'},{v:37.0,l:'37.0 sec'},{v:39.0,l:'39.0 sec (default)'},{v:42.0,l:'42.0 sec'}],
+  '400m': [{v:46.0,l:'46.0 sec'},{v:47.0,l:'47.0 sec'},{v:48.0,l:'48.0 sec (default)'},{v:50.0,l:'50.0 sec'}],
+};
+
+function raGetIdealData(event, target) {
+  if (event === '110m') return interpolateData110(target);
+  if (event === '100w') return interpolateData100w(target);
+  if (event === '300h') return interpolateData300h(target);
+  return interpolateData400(target);
+}
+
+function raHurdleCount(event) {
+  return event === '300h' ? 9 : 11; // 8 hurdles + finish for 300H; 10 hurdles + finish for others
+}
+
+function raSetEvent(ev) {
+  raEvent = ev;
+  document.querySelectorAll('#panel-4 .sub-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['110m','100w','300h','400m'][i] === ev);
+  });
+  const sel = document.getElementById('raIdealTarget');
+  sel.innerHTML = RA_TARGETS[ev].map(o =>
+    `<option value="${o.v}"${o.l.includes('default')?' selected':''}>${o.l}</option>`
+  ).join('');
+  // Clear entries when switching events as hurdle count differs
+  raEntries = [];
+  raNextId = 0;
+  document.getElementById('raAddBtn').style.opacity = '1';
+  document.getElementById('raAddBtn').style.pointerEvents = 'auto';
+  raRenderCards();
+  raRender();
+}
+
+function raAddEntry() {
+  if (raEntries.length >= RA_MAX) return;
+  const id = raNextId++;
+  const count = raHurdleCount(raEvent);
+  raEntries.push({ id, label: `Entry ${id+1}`, times: Array(count).fill(null) });
+  raRenderCards();
+  raRender();
+  document.getElementById('raAddBtn').style.opacity = raEntries.length >= RA_MAX ? '0.4' : '1';
+  document.getElementById('raAddBtn').style.pointerEvents = raEntries.length >= RA_MAX ? 'none' : 'auto';
+}
+
+function raRemoveEntry(id) {
+  raEntries = raEntries.filter(e => e.id !== id);
+  raRenderCards();
+  raRender();
+  document.getElementById('raAddBtn').style.opacity = '1';
+  document.getElementById('raAddBtn').style.pointerEvents = 'auto';
+}
+
+function raClearAll() {
+  raEntries = [];
+  raNextId = 0;
+  raRenderCards();
+  document.getElementById('raResults').innerHTML = '';
+  document.getElementById('raAddBtn').style.opacity = '1';
+  document.getElementById('raAddBtn').style.pointerEvents = 'auto';
+}
+
+function raUpdateLabel(id, val) {
+  const e = raEntries.find(e => e.id === id);
+  if (e) e.label = val || `Entry ${id+1}`;
+}
+
+function raUpdateTime(id, hIdx, val) {
+  const e = raEntries.find(e => e.id === id);
+  if (!e) return;
+  const v = parseFloat(val);
+  e.times[hIdx] = isNaN(v) ? null : v;
+  raRender();
+}
+
+function raRenderCards() {
+  const container = document.getElementById('raEntryCards');
+  if (raEntries.length === 0) {
+    container.innerHTML = `<div class="card" style="text-align:center;padding:2rem;color:var(--ink3)">
+      <div style="font-family:var(--display);font-size:14px;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px">No entries yet</div>
+      <div style="font-size:12px;font-style:italic;color:var(--ink3)">Click "+ Add Entry" to add an athlete or race</div>
+    </div>`;
+    return;
+  }
+
+  const hurdleCount = raHurdleCount(raEvent);
+  const hLabels = Array.from({length:hurdleCount},(_,i)=> i===hurdleCount-1 ? 'Finish' : `H${i+1}`);
+  const idealTarget = parseFloat(document.getElementById('raIdealTarget')?.value || RA_TARGETS[raEvent][2].v);
+  const idealData = raGetIdealData(raEvent, idealTarget);
+  const idealCum = getCumulative(idealData.intervals);
+
+  let html = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;margin-bottom:12px">`;
+
+  raEntries.forEach((entry, ei) => {
+    const color = RA_COLORS[ei % RA_COLORS.length];
+    html += `<div class="card" style="border-top:4px solid ${color};padding:14px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+        <input
+          type="text"
+          value="${entry.label}"
+          placeholder="Athlete / Race label"
+          oninput="raUpdateLabel(${entry.id}, this.value)"
+          style="background:transparent;border:none;border-bottom:1px solid var(--border2);color:var(--ink);font-family:var(--display);font-size:16px;font-weight:600;letter-spacing:0.04em;width:100%;outline:none;padding:2px 0"
+        >
+        <button onclick="raRemoveEntry(${entry.id})" title="Remove" style="background:none;border:none;color:var(--ink3);cursor:pointer;font-size:16px;margin-left:8px;flex-shrink:0;padding:0">✕</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px">`;
+
+    for (let i=0; i<hurdleCount; i++) {
+      const v = entry.times[i];
+      const ideal = idealCum[i];
+      const diff = v !== null ? v - ideal : null;
+      const statusColor = diff === null ? 'transparent' : diff > 0.1 ? '#dc2626' : diff < -0.1 ? '#15803d' : '#c4900a';
+      html += `<div style="background:var(--bg2);border-radius:4px;padding:4px 3px;text-align:center;border-bottom:3px solid ${statusColor}">
+        <div style="font-family:var(--display);font-size:9px;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3);margin-bottom:2px">${hLabels[i]}</div>
+        <input
+          type="number"
+          step="0.01"
+          min="0"
+          placeholder="—"
+          value="${v !== null ? v : ''}"
+          oninput="raUpdateTime(${entry.id}, ${i}, this.value)"
+          style="width:100%;background:transparent;border:none;outline:none;font-family:var(--display);font-size:13px;font-weight:600;color:var(--ink);text-align:center;padding:0"
+        >
+        <div style="font-size:9px;color:var(--ink3);margin-top:1px">${ideal.toFixed(2)}</div>
+      </div>`;
+    }
+
+    html += `</div>
+      <div style="margin-top:8px;font-size:11px;color:var(--ink3);font-style:italic">Gray number = ideal time for each point</div>
+    </div>`;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+function raRender() {
+  const container = document.getElementById('raResults');
+  const activeEntries = raEntries.filter(e => e.times.some(t => t !== null));
+  if (activeEntries.length === 0) { container.innerHTML = ''; return; }
+
+  const idealTarget = parseFloat(document.getElementById('raIdealTarget')?.value || RA_TARGETS[raEvent][2].v);
+  const idealData = raGetIdealData(raEvent, idealTarget);
+  const idealCum = getCumulative(idealData.intervals);
+
+  const hurdleCount = raHurdleCount(raEvent);
+  const hLabels = Array.from({length:hurdleCount},(_,i)=> i===hurdleCount-1 ? 'Finish' : `H${i+1}`);
+  const eventName = raEvent==='110m' ? "Men's 110m" : raEvent==='100w' ? "Women's 100m" : raEvent==='300h' ? "300m Hurdles" : "400m";
+
+  // ── Summary banners ──
+  let summaryHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-bottom:14px">`;
+  activeEntries.forEach((entry, ei) => {
+    const color = RA_COLORS[raEntries.indexOf(entry) % RA_COLORS.length];
+    const filled = entry.times.map((v,i) => v !== null ? i : -1).filter(i=>i>=0);
+    if (filled.length === 0) return;
+    const lastIdx = filled[filled.length-1];
+    const lastTime = entry.times[lastIdx];
+    const diff = lastTime - idealCum[lastIdx];
+    const proj = lastTime + (idealCum[10] - idealCum[lastIdx]);
+    summaryHtml += `<div style="background:var(--header);border-radius:6px;padding:12px;border-left:4px solid ${color}">
+      <div style="font-family:var(--display);font-size:11px;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:4px">${entry.label}</div>
+      <div style="font-family:var(--display);font-size:24px;font-weight:700;color:#ffffff">${proj.toFixed(2)}<span style="font-size:13px;color:${color};font-weight:400;margin-left:4px">sec proj.</span></div>
+      <div style="font-size:11px;color:${diff>0.1?'#f59e0b':diff<-0.1?'#86efac':'rgba(255,255,255,0.8)'};font-family:var(--display);letter-spacing:0.06em;margin-top:3px">${diff>0?'▼ ':'▲ '}${Math.abs(diff).toFixed(2)}s vs ideal at H${lastIdx+1}</div>
+    </div>`;
+  });
+  summaryHtml += '</div>';
+
+  // ── Comparison table ──
+  let tableHtml = `<div style="overflow-x:auto">
+    <table class="hurdle-table">
+      <thead>
+        <tr>
+          <th>Point</th>
+          <th style="color:var(--ink3)">Ideal<br><span style="font-weight:400;font-size:10px">${idealTarget}s</span></th>`;
+  activeEntries.forEach((entry, ei) => {
+    const color = RA_COLORS[raEntries.indexOf(entry) % RA_COLORS.length];
+    tableHtml += `<th style="border-bottom:2px solid ${color}">${entry.label}</th>`;
+    tableHtml += `<th style="border-bottom:2px solid ${color};font-size:10px;color:var(--ink3)">vs Ideal</th>`;
+  });
+  // gap column if multiple entries
+  if (activeEntries.length > 1) tableHtml += `<th style="font-size:10px;color:var(--ink3)">Gap<br>(1st–last)</th>`;
+  tableHtml += '</tr></thead><tbody>';
+
+  for (let i=0; i<11; i++) {
+    const anyFilled = activeEntries.some(e => e.times[i] !== null);
+    if (!anyFilled) continue;
+    const lbl = hLabels[i];
+    tableHtml += `<tr>
+      <td>${lbl}</td>
+      <td style="font-family:var(--display);color:var(--ink3)">${idealCum[i].toFixed(2)}</td>`;
+
+    const filledTimes = activeEntries.map(e => e.times[i]).filter(v => v !== null);
+    const minTime = filledTimes.length ? Math.min(...filledTimes) : null;
+
+    activeEntries.forEach((entry, ei) => {
+      const color = RA_COLORS[raEntries.indexOf(entry) % RA_COLORS.length];
+      const v = entry.times[i];
+      const interval = (i > 0 && entry.times[i] !== null && entry.times[i-1] !== null)
+        ? (entry.times[i] - entry.times[i-1]).toFixed(2) : null;
+
+      if (v === null) {
+        tableHtml += `<td style="color:var(--ink3)">—</td><td style="color:var(--ink3)">—</td>`;
+      } else {
+        const isLeader = v === minTime && filledTimes.length > 1;
+        const diff = v - idealCum[i];
+        const diffCls = diff > 0.1 ? 'over' : diff < -0.1 ? 'under' : 'ok';
+        const diffColor = diff > 0.1 ? '#e06060' : diff < -0.1 ? '#3ecf6e' : 'var(--ink3)';
+        tableHtml += `<td>
+          <span style="font-family:var(--display);font-size:14px;font-weight:700;color:${isLeader?color:'var(--ink)'}">
+            ${v.toFixed(2)}${isLeader?' ★':''}
+          </span>
+          ${interval ? `<span style="font-size:10px;color:var(--ink3);display:block">${interval}s int.</span>` : ''}
+        </td>
+        <td style="font-size:11px;color:${diffColor};font-family:var(--display)">${diff>0?'+':''}${diff.toFixed(2)}</td>`;
+      }
+    });
+
+    // Gap column
+    if (activeEntries.length > 1) {
+      if (filledTimes.length > 1) {
+        const gap = Math.max(...filledTimes) - Math.min(...filledTimes);
+        tableHtml += `<td style="font-family:var(--display);font-size:12px;color:var(--gold)">${gap.toFixed(2)}s</td>`;
+      } else {
+        tableHtml += `<td style="color:var(--ink3)">—</td>`;
+      }
+    }
+    tableHtml += '</tr>';
+  }
+  tableHtml += '</tbody></table></div>';
+
+  // ── Interval pace chart ──
+  let chartHtml = `<div style="margin-top:16px">
+    <div class="section-head" style="margin-bottom:10px">Interval pace comparison (sec per hurdle gap)</div>`;
+
+  for (let i=0; i<11; i++) {
+    const anyFilled = activeEntries.some(e => e.times[i] !== null && (i===0 || e.times[i-1] !== null));
+    if (!anyFilled) continue;
+    chartHtml += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+      <div style="font-family:var(--display);font-size:10px;letter-spacing:0.06em;text-transform:uppercase;color:var(--ink3);min-width:48px;text-align:right">${hLabels[i]}</div>
+      <div style="flex:1;display:flex;flex-direction:column;gap:2px">`;
+
+    // ideal bar
+    const idealInterval = idealData.intervals[i];
+    const allIntervals = activeEntries.map(e => {
+      if (e.times[i] === null) return null;
+      if (i === 0) return e.times[0];
+      if (e.times[i-1] === null) return null;
+      return e.times[i] - e.times[i-1];
+    }).filter(v => v !== null);
+    const maxInterval = Math.max(idealInterval, ...allIntervals) * 1.05;
+
+    chartHtml += `<div style="display:flex;align-items:center;gap:6px">
+        <div style="font-size:9px;color:var(--ink3);min-width:36px">Ideal</div>
+        <div style="flex:1;height:8px;background:var(--bg3);border-radius:1px">
+          <div style="width:${(idealInterval/maxInterval*100).toFixed(1)}%;height:100%;background:var(--bg3);border-radius:1px"></div>
+        </div>
+        <div style="font-size:9px;color:var(--ink3);min-width:32px">${idealInterval.toFixed(2)}s</div>
+      </div>`;
+
+    activeEntries.forEach((entry, ei) => {
+      const color = RA_COLORS[raEntries.indexOf(entry) % RA_COLORS.length];
+      const interval = (() => {
+        if (entry.times[i] === null) return null;
+        if (i === 0) return entry.times[0];
+        if (entry.times[i-1] === null) return null;
+        return entry.times[i] - entry.times[i-1];
+      })();
+      if (interval === null) return;
+      chartHtml += `<div style="display:flex;align-items:center;gap:6px">
+          <div style="font-size:9px;min-width:36px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:${color}">${entry.label.slice(0,10)}</div>
+          <div style="flex:1;height:8px;background:var(--bg3);border-radius:1px">
+            <div style="width:${(interval/maxInterval*100).toFixed(1)}%;height:100%;background:${color};border-radius:1px;opacity:0.85"></div>
+          </div>
+          <div style="font-size:9px;min-width:32px;color:${color}">${interval.toFixed(2)}s</div>
+        </div>`;
+    });
+    chartHtml += '</div></div>';
+  }
+  chartHtml += '</div>';
+
+  container.innerHTML = `<div class="card">
+    <div class="card-title" style="margin-bottom:12px">${eventName} — ${activeEntries.length > 1 ? activeEntries.length+' entries compared' : '1 entry'} vs ${idealTarget}s ideal</div>
+    ${summaryHtml}
+    <div class="section-head" style="margin-bottom:8px">Hurdle-by-hurdle comparison · ★ = leader at that point</div>
+    ${tableHtml}
+    ${chartHtml}
+  </div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// PRACTICE FORMULA
+// ═══════════════════════════════════════════════════════════════════
+
+const CONFIGS = {
+  '1': { label:'Hurdles 4, 5, 6, 7 removed', removed:4, differential:0.72, desc:'4 hurdles removed: 0.24 FAT base + 0.48 (4×0.12 per omitted hurdle). Athletes develop a stronger finish over the last 5 hurdles after the open middle section.' },
+  '2': { label:'Hurdles 6, 7 removed', removed:2, differential:0.48, desc:'2 hurdles removed: 0.24 FAT base + 0.24 (2×0.12). First part of race is intact through hurdle #5; reconstruction begins at hurdle #8.' },
+  '3': { label:'Hurdles 4, 5 removed', removed:2, differential:0.48, desc:'2 hurdles removed from flight: 0.24 FAT base + 0.24. Used for finishing strongly over the last five hurdles — transition from flat back to hurdles at #6.' },
+  '4': { label:'Hurdles 1–5 removed (finish focus)', removed:5, differential:0.84, desc:'First 5 hurdles removed for a finish-focused drill. Athletes enter the race in the middle with maximum speed already built. Higher volume option for building specific endurance.' },
+  'supercharged': { label:'Hurdles 4–7 removed, 125m finish', removed:4, differential:0.72, desc:'The Supercharged Configuration — first 9 hurdles in flight (325m), then athlete must complete 41–40 second effort. At touchdown off hurdle #9, evaluate remaining strength needed to finish.' }
+};
+
+function updateConfig() {
+  const cfg = document.getElementById('configSelect').value;
+  const c = CONFIGS[cfg];
+  document.getElementById('configDesc').textContent = c.desc;
+  calcPractice();
+}
+
+function calcPractice() {
+  const cfg = CONFIGS[document.getElementById('configSelect').value];
+  const t = parseFloat(document.getElementById('practiceTime').value);
+  const el = document.getElementById('practiceResult');
+  if (isNaN(t)) { el.innerHTML=''; return; }
+  const comp = t + cfg.differential;
+  el.innerHTML = `
+    <div class="result-banner" style="margin-top:10px">
+      <div><div class="result-label">Practice Time</div><div class="result-value">${t.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">Differential</div><div class="result-value">+${cfg.differential.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">Competition FAT Equiv.</div><div class="result-value" style="color:var(--gold)">${comp.toFixed(2)}<span class="result-unit">sec</span></div></div>
+    </div>
+    <div class="note">Formula: ${t.toFixed(2)} (practice) + ${cfg.differential.toFixed(2)} (0.24 FAT base + ${(cfg.differential-0.24).toFixed(2)} for ${cfg.removed} omitted hurdle${cfg.removed!==1?'s':''}) = <strong>${comp.toFixed(2)} sec</strong> estimated competition FAT</div>`;
+}
+
+function calc55m() {
+  const t = parseFloat(document.getElementById('time55m').value);
+  const el = document.getElementById('result55m');
+  if (isNaN(t)) { el.innerHTML=''; return; }
+  // Ross method: 55m time × 2 = 55m equiv, 7.10 → 13.20 capability
+  // Ratio: 13.20/7.10 = 1.859
+  const projected110 = t * (13.20/7.10);
+  const doublePlus = t * 2 + 0.72; // simple doubling + 0.72 practice differential
+  el.innerHTML = `
+    <div class="result-banner" style="margin-top:10px">
+      <div><div class="result-label">55m Time</div><div class="result-value">${t.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">110m Potential</div><div class="result-value" style="color:var(--gold)">${projected110.toFixed(2)}<span class="result-unit">sec</span></div></div>
+    </div>
+    <div class="note">Ross method: a 55m time of 7.10 indicates capability for 13.20 in the 110m. Ratio applied: ${(13.20/7.10).toFixed(3)}. Note: actual results vary based on fitness, endurance, and technique over the full race distance.</div>`;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// REFERENCE TABLES
+// ═══════════════════════════════════════════════════════════════════
+
+function buildRefTable110() {
+  const targets = [15.0, 13.6, 13.0, 12.5];
+  const labels = ['15.0','13.6','13.0','12.5*'];
+  let html = `<div style="overflow-x:auto"><table class="hurdle-table">
+    <thead><tr><th>Performance</th>`;
+  for (const l of labels) html += `<th>${l} sec</th>`;
+  html += '</tr><tr><th></th>';
+  for (const l of labels) html += '<th style="font-size:10px;color:var(--ink3)">Time / Interval</th>';
+  html += '</tr></thead><tbody>';
+  
+  for (let i=0; i<=10; i++) {
+    const lbl = i===10?'To Finish Line':`After ${i+1}${i===0?'st':i===1?'nd':i===2?'rd':'th'} Hurdle`;
+    const isCZ = CRITICAL_ZONES_110.includes(i);
+    html += `<tr class="${isCZ?'highlight':''}"><td>${lbl}${isCZ?` ⚡`:''}</td>`;
+    for (const key of targets) {
+      const d = DATA_110[key];
+      const cum = getCumulative(d.intervals);
+      html += `<td><span class="t-split">${cum[i].toFixed(2)}</span> <span class="t-interval">/ ${d.intervals[i].toFixed(2)}</span></td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div class="note" style="margin-top:8px">* = expected new performances. Format: Cumulative time / Interval time per section.</div>';
+  document.getElementById('refTable110').innerHTML = html;
+}
+
+function buildRefTable100w() {
+  const targets = [15.0, 13.6, 13.0, 12.5];
+  const labels = ['15.0','13.6','13.0','12.5*'];
+  let html = `<div style="overflow-x:auto"><table class="hurdle-table">
+    <thead><tr><th>Performance</th>`;
+  for (const l of labels) html += `<th>${l} sec</th>`;
+  html += '</tr><tr><th></th>';
+  for (const l of labels) html += '<th style="font-size:10px;color:var(--ink3)">Time / Interval</th>';
+  html += '</tr></thead><tbody>';
+  for (let i=0; i<=10; i++) {
+    const lbl = i===10?'To Finish Line':`After ${i+1}${i===0?'st':i===1?'nd':i===2?'rd':'th'} Hurdle`;
+    const isPeak = i===5;
+    html += `<tr class="${isPeak?'highlight':''}"><td>${lbl}${isPeak?' ⚡':''}</td>`;
+    for (const key of targets) {
+      const d = DATA_100W[key];
+      const cum = getCumulative(d.intervals);
+      html += `<td><span class="t-split">${cum[i].toFixed(2)}</span> <span class="t-interval">/ ${d.intervals[i].toFixed(3)}</span></td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div class="note" style="margin-top:8px">* = expected new performance. ⚡ = peak velocity interval (H5→H6). Format: Cumulative time / Interval time per section.</div>';
+  document.getElementById('refTable100w').innerHTML = html;
+}
+
+function buildRefTable400() {
+  const targets = [50.0, 48.0, 47.0, 46.0];
+  const labels = ['50.0','48.0','47.0','46.0*'];
+  let html = `<div style="overflow-x:auto"><table class="hurdle-table">
+    <thead><tr><th>Performance</th>`;
+  for (const l of labels) html += `<th>${l} sec</th>`;
+  html += '</tr><tr><th></th>';
+  for (const l of labels) html += '<th style="font-size:10px;color:var(--ink3)">Time / Interval</th>';
+  html += '</tr></thead><tbody>';
+  for (let i=0; i<=10; i++) {
+    const lbl = i===10?'To Finish Line':`After ${i+1}${i===0?'st':i===1?'nd':i===2?'rd':'th'} Hurdle`;
+    html += `<tr><td>${lbl}</td>`;
+    for (const key of targets) {
+      const d = DATA_400[key];
+      const cum = getCumulative(d.intervals);
+      html += `<td><span class="t-split">${cum[i].toFixed(2)}</span> <span class="t-interval">/ ${d.intervals[i].toFixed(2)}</span></td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div class="note" style="margin-top:8px">* = expected new performances. Consistent 0.70 sec differential between 1st and 10th hurdle intervals across all performance levels.</div>';
+  document.getElementById('refTable400').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════════════════════════════
+
+function switchTool(idx) {
+  document.querySelectorAll('.tool-panel').forEach((p,i)=>p.classList.toggle('active',i===idx));
+  document.querySelectorAll('.tool-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+}
+
+function switchSub(idx) {
+  document.querySelectorAll('.sub-panel').forEach(p=>{
+    if (p.id.startsWith('sub-')) p.classList.toggle('active', p.id===`sub-${idx}`);
+  });
+  document.querySelectorAll('#panel-4 .sub-tab').forEach((t,i)=>t.classList.toggle('active',i===idx));
+}
+
+function switchRef(idx) {
+  document.querySelectorAll('.sub-panel').forEach(p=>{
+    if (p.id.startsWith('ref-')) p.classList.toggle('active', p.id===`ref-${idx}`);
+  });
+  const tabs = document.querySelectorAll('#panel-6 .sub-tab');
+  tabs.forEach((t,i)=>t.classList.toggle('active',i===idx));
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 300m HURDLES DATA
+// ═══════════════════════════════════════════════════════════════════
+// 300H: 8 hurdles, 35m to H1, then 35m spacing, 40m from H8 to finish
+// Total: 300m. Using same Ross/Hernandez interval ratio methodology
+// as applied to 400H but scaled for 300m distance and 8 hurdles.
+// Interval structure: start→H1 longer (acceleration), H1-H8 consistent
+// with slight decel late, H8→finish.
+// Format: [start→H1, H1→H2, ..., H7→H8, H8→finish] = 9 intervals
+
+const DATA_300H = {
+  35.0: {
+    intervals: [4.30, 3.10, 3.05, 3.05, 3.05, 3.10, 3.15, 3.25, 3.95],
+    speeds:    [8.14, 11.29, 11.48, 11.48, 11.48, 11.29, 11.11, 10.77, 10.13],
+    finish: 35.0
+  },
+  37.0: {
+    intervals: [4.55, 3.28, 3.22, 3.22, 3.22, 3.28, 3.33, 3.45, 4.15],
+    speeds:    [7.69, 10.67, 10.87, 10.87, 10.87, 10.67, 10.50, 10.14, 9.64],
+    finish: 37.0
+  },
+  39.0: {
+    intervals: [4.80, 3.45, 3.38, 3.38, 3.38, 3.45, 3.52, 3.64, 4.40],
+    speeds:    [7.29, 10.14, 10.36, 10.36, 10.36, 10.14, 9.94, 9.62, 9.09],
+    finish: 39.0
+  },
+  42.0: {
+    intervals: [5.15, 3.72, 3.65, 3.65, 3.65, 3.72, 3.80, 3.93, 4.73],
+    speeds:    [6.80, 9.41, 9.59, 9.59, 9.59, 9.41, 9.21, 8.91, 8.46],
+    finish: 42.0
+  }
+};
+
+function interpolateData300h(targetTime) {
+  const keys = [35.0, 37.0, 39.0, 42.0];
+  if (targetTime <= 35.0) return DATA_300H[35.0];
+  if (targetTime >= 42.0) return DATA_300H[42.0];
+  let lo = keys[0], hi = keys[keys.length-1];
+  for (let i=0; i<keys.length-1; i++) {
+    if (targetTime >= keys[i] && targetTime <= keys[i+1]) { lo=keys[i]; hi=keys[i+1]; break; }
+  }
+  if (DATA_300H[targetTime]) return DATA_300H[targetTime];
+  const t = (targetTime - lo)/(hi - lo);
+  const dlo = DATA_300H[lo], dhi = DATA_300H[hi];
+  return {
+    intervals: dlo.intervals.map((v,i) => +(v + t*(dhi.intervals[i]-v)).toFixed(3)),
+    speeds:    dlo.speeds   .map((v,i) => +(v + t*(dhi.speeds[i]   -v)).toFixed(2)),
+    finish: targetTime
+  };
+}
+
+function render300hTable() {
+  const t = getTargetTime('goalTime300h', 'customTime300h');
+  if (!t) return;
+  const data = interpolateData300h(t);
+  const cum = getCumulative(data.intervals);
+  const hLabels = ['H1','H2','H3','H4','H5','H6','H7','H8','Finish'];
+
+  document.getElementById('result300hBanner').innerHTML = `
+    <div class="result-banner">
+      <div><div class="result-label">Goal Time</div><div class="result-value">${t.toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H1</div><div class="result-value">${cum[0].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H4 (mid)</div><div class="result-value">${cum[3].toFixed(2)}<span class="result-unit">sec</span></div></div>
+      <div><div class="result-label">After H8</div><div class="result-value">${cum[7].toFixed(2)}<span class="result-unit">sec</span></div></div>
+    </div>`;
+
+  let html = `<table class="hurdle-table">
+    <thead><tr><th>Point</th><th>Interval (sec)</th><th>Cumulative (sec)</th><th>Speed (ft/sec)</th></tr></thead><tbody>`;
+  for (let i=0; i<9; i++) {
+    const isFatigue = i >= 5 && i < 8;
+    html += `<tr class="${isFatigue?'highlight':''}">
+      <td>${hLabels[i]}</td>
+      <td class="t-interval">${data.intervals[i].toFixed(3)}</td>
+      <td class="t-split">${cum[i].toFixed(2)}</td>
+      <td class="t-speed">${data.speeds[i].toFixed(2)}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  document.getElementById('table300h').innerHTML = html;
+  renderPaceViz300h(data);
+}
+
+function renderPaceViz300h(data) {
+  const maxSpeed = Math.max(...data.speeds);
+  const hLabels = ['H1','H2','H3','H4','H5','H6','H7','H8','Finish'];
+  let html = '';
+  for (let i=0; i<9; i++) {
+    const spd = data.speeds[i];
+    const pct = (spd/maxSpeed*100).toFixed(1);
+    const color = i===0?'var(--gold)':i<4?'var(--purple)':i<6?'var(--violet)':'#dc2626';
+    html += `<div class="pace-bar-row">
+      <div class="pace-bar-label">${hLabels[i]}</div>
+      <div class="pace-bar-track"><div class="pace-bar-fill" style="width:${pct}%;background:${color}"></div></div>
+      <div class="pace-bar-val">${spd.toFixed(2)} ft/s</div>
+    </div>`;
+  }
+  document.getElementById('paceViz300h').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 300H → 400H CONVERSION
+// ═══════════════════════════════════════════════════════════════════
+// Method: Distance ratio (400/300 = 1.333) × 300H time, then add a
+// fitness-based fatigue factor. The fatigue factor accounts for the
+// additional anaerobic demand of 2 more hurdles and 100 more meters.
+// Based on observed conversion patterns in high school/collegiate athletes.
+//
+// Elite (well-conditioned 400H specialist): +3.5s
+// Good (trained, some 400H work): +4.5s
+// Developing (limited 400H fitness): +5.5s
+//
+// Conversion formula: 400H = (300H × 1.3333) + fatigue_factor
+
+const FATIGUE_FACTORS = { elite: 3.5, good: 4.5, developing: 5.5 };
+
+function calc300hConversion() {
+  const t = parseFloat(document.getElementById('conv300hTime').value);
+  const fitness = document.getElementById('conv300hFitness').value;
+  const el = document.getElementById('conv300hResult');
+  if (isNaN(t) || t <= 0) { el.innerHTML=''; buildConvRefTable(); return; }
+
+  const factor = FATIGUE_FACTORS[fitness];
+  const projected = (t * (400/300)) + factor;
+  const projElite = (t * (400/300)) + FATIGUE_FACTORS.elite;
+  const projDev   = (t * (400/300)) + FATIGUE_FACTORS.developing;
+  const speedRatio = ((projected - t) / t * 100).toFixed(1);
+
+  el.innerHTML = `
+    <div class="conv-grid">
+      <div class="conv-result">
+        <div class="conv-label">Projected 400H Time</div>
+        <div class="conv-value">${projected.toFixed(2)}<span class="conv-unit">sec</span></div>
+      </div>
+      <div class="conv-result" style="background:rgba(76,47,160,0.85)">
+        <div class="conv-label">300H Input</div>
+        <div class="conv-value">${t.toFixed(2)}<span class="conv-unit">sec</span></div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:8px">
+      Formula: (${t.toFixed(2)} × 1.333) + ${factor.toFixed(1)}s fatigue factor = <strong>${projected.toFixed(2)}s</strong>.
+      Range based on fitness level: ${projElite.toFixed(2)}s (elite conditioning) → ${projDev.toFixed(2)}s (developing).
+      The ${factor.toFixed(1)}s fatigue factor reflects additional anaerobic demand from 2 extra hurdles and 100 more meters.
+      Ross &amp; Hernandez de Ross note that endurance is specific to the speed you operate at —
+      building 400H-specific fitness directly narrows this gap.
+    </div>`;
+
+  buildConvRefTable();
+}
+
+function buildConvRefTable() {
+  const fitness = document.getElementById('conv300hFitness')?.value || 'good';
+  const factor = FATIGUE_FACTORS[fitness];
+  const rows = [35.0, 36.0, 37.0, 38.0, 39.0, 40.0, 41.0, 42.0, 43.0, 44.0, 45.0];
+  let html = `<thead><tr>
+    <th>300H Time</th><th>Proj. 400H (Elite +3.5)</th><th>Proj. 400H (Good +4.5)</th><th>Proj. 400H (Dev. +5.5)</th>
+  </tr></thead><tbody>`;
+  const inputTime = parseFloat(document.getElementById('conv300hTime')?.value);
+  for (const t300 of rows) {
+    const isActive = !isNaN(inputTime) && Math.abs(inputTime - t300) < 0.6;
+    html += `<tr class="${isActive?'highlight':''}">
+      <td style="font-family:var(--display);font-weight:700">${t300.toFixed(1)}</td>
+      <td class="t-split">${((t300*(400/300))+3.5).toFixed(2)}</td>
+      <td class="t-split">${((t300*(400/300))+4.5).toFixed(2)}</td>
+      <td class="t-split">${((t300*(400/300))+5.5).toFixed(2)}</td>
+    </tr>`;
+  }
+  html += '</tbody>';
+  const el = document.getElementById('convRefTable');
+  if (el) el.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// 300H REFERENCE TABLE BUILDER
+// ═══════════════════════════════════════════════════════════════════
+
+function buildRefTable300h() {
+  const targets = [35.0, 37.0, 39.0, 42.0];
+  const labels = ['35.0','37.0','39.0','42.0'];
+  const hLabels = ['H1','H2','H3','H4','H5','H6','H7','H8','Finish'];
+  let html = `<div style="overflow-x:auto"><table class="hurdle-table">
+    <thead><tr><th>Point</th>`;
+  for (const l of labels) html += `<th>${l} sec</th>`;
+  html += '</tr><tr><th></th>';
+  for (const l of labels) html += '<th style="font-size:10px;color:var(--ink3)">Time / Interval</th>';
+  html += '</tr></thead><tbody>';
+  for (let i=0; i<9; i++) {
+    const isFatigue = i>=5 && i<8;
+    html += `<tr class="${isFatigue?'highlight':''}"><td>${hLabels[i]}</td>`;
+    for (const key of targets) {
+      const d = DATA_300H[key];
+      const cum = getCumulative(d.intervals);
+      html += `<td><span class="t-split">${cum[i].toFixed(2)}</span> <span class="t-interval">/ ${d.intervals[i].toFixed(3)}</span></td>`;
+    }
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  html += '<div class="note" style="margin-top:8px">Format: Cumulative time / Interval. Highlighted rows = fatigue zone (H6–H8). Methodology derived from Ross &amp; Hernandez de Ross interval ratio approach.</div>';
+  document.getElementById('refTable300h').innerHTML = html;
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// LOGIN SYSTEM
+// ═══════════════════════════════════════════════════════════════════
+// Demo credentials — in production, replace with server-side auth.
+// This is a front-end prototype for the coach's tool beta.
+
+const DEMO_USERS = [
+  { email: 'derek@derekdrew.com', password: 'hurdles2024', name: 'Derek Drew' },
+  { email: 'coach@derekdrew.com', password: 'coach2024',   name: 'Coach Access' },
+  { email: 'demo@derekdrew.com',  password: 'demo',        name: 'Demo User' },
+];
+
+// ── ADMIN BYPASS ──────────────────────────────────────────────────
+// Triple-click the "Derek Drew" logo on the login screen.
+
+let adminClickCount = 0;
+let adminClickTimer = null;
+
+function adminBypass() {
+  adminClickCount++;
+  clearTimeout(adminClickTimer);
+  adminClickTimer = setTimeout(() => { adminClickCount = 0; }, 800);
+  if (adminClickCount >= 3) {
+    adminClickCount = 0;
+    grantAccess('Derek Drew', 'admin');
+  }
+}
+
+function grantAccess(name, role) {
+  document.getElementById('loginOverlay').style.display = 'none';
+  document.getElementById('loggedInUser').textContent = name;
+  document.getElementById('loginError').style.display = 'none';
+  sessionStorage.setItem('ddAuth', JSON.stringify({ name, role }));
+}
+
+function doLogin() {
+  const email    = document.getElementById('loginEmail').value.trim().toLowerCase();
+  const password = document.getElementById('loginPass').value;
+  const errorEl  = document.getElementById('loginError');
+  const user = DEMO_USERS.find(u => u.email === email && u.password === password);
+  if (user) {
+    grantAccess(user.name, 'user');
+    errorEl.style.display = 'none';
+  } else {
+    errorEl.style.display = 'block';
+    document.getElementById('loginPass').value = '';
+    document.getElementById('loginPass').focus();
+  }
+}
+
+function doLogout() {
+  sessionStorage.removeItem('ddAuth');
+  document.getElementById('loginOverlay').style.display = 'flex';
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+  document.getElementById('loggedInUser').textContent = '';
+}
+
+// Auto-restore session if already logged in
+(function checkSession() {
+  const stored = sessionStorage.getItem('ddAuth');
+  if (stored) {
+    try {
+      const user = JSON.parse(stored);
+      document.getElementById('loginOverlay').style.display = 'none';
+      document.getElementById('loggedInUser').textContent = user.name;
+    } catch(e) { /* ignore */ }
+  }
+})();
+
+
+
+buildRefTable110();
+buildRefTable100w();
+buildRefTable400();
+buildRefTable300h();
+render110Table();
+render100wTable();
+render400Table();
+render300hTable();
+buildConvRefTable();
+updateConfig();
+raSetEvent('110m');
+</script>
+</body>
+</html>
