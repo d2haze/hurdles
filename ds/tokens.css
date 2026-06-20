@@ -1,0 +1,83 @@
+:root {
+  /* ── Surfaces — neutral, not purple-tinted ── */
+  --bg: #f5f5f7;
+  --bg2: #ebebef;
+  --bg3: #dddde5;
+  --card: #ffffff;
+
+  /* ── Brand — single clean violet ── */
+  --header: #18103a;
+  --purple: #7c3aed;
+  --purple2: #6d28d9;
+  --brand-ring: rgba(124,58,237,0.22);
+
+  /* ── Gold — critical data accents only ── */
+  --gold: #d97706;
+  --gold2: #b45309;
+  --gold-accent: #f59e0b;
+  --gold-dim: rgba(217,119,6,0.1);
+
+  /* ── Status ── */
+  --green: #059669;
+  --green-light: #ecfdf5;
+  --green-mid: #10b981;
+  --red: #dc2626;
+  --red-light: #fef2f2;
+  --red-mid: #f87171;
+  --amber: #d97706;
+  --amber-light: #fffbeb;
+
+  /* ── Violet for pace bars / accents ── */
+  --violet: #7c3aed;
+  --violet-light: #a78bfa;
+
+  /* ── Text ── */
+  --ink: #111827;
+  --ink2: #374151;
+  --ink3: #6b7280;
+  --ink4: #9ca3af;
+  --text: #111827;
+
+  /* ── Borders ── */
+  --border: #e5e7eb;
+  --border2: #d1d5db;
+
+  /* ── Typography ── */
+  --display: 'Oswald', sans-serif;
+  --body: 'Inter', system-ui, -apple-system, sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+
+  /* ── Type scale ── */
+  --size-2xs: 10px;
+  --size-xs: 11px;
+  --size-sm: 12px;
+  --size-base: 14px;
+  --size-md: 15px;
+  --size-lg: 18px;
+  --size-xl: 22px;
+  --size-2xl: 28px;
+  --size-3xl: 38px;
+
+  /* ── Spacing ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+
+  /* ── Border radius ── */
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 10px;
+  --r-xl: 14px;
+  --r-2xl: 20px;
+
+  /* ── Shadows — subtle ring + blur ── */
+  --shadow-xs: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04);
+  --shadow-modal: 0 20px 50px rgba(0,0,0,0.22), 0 0 0 1px rgba(0,0,0,0.06);
+  --shadow-focus: 0 0 0 3px var(--brand-ring);
+}

@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Race Report — Aiden Kolkmeyer · 400H · New Balance Nationals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#111827;--ink2:#374151;--ink3:#6b7280;--ink4:#9ca3af;
+  --bg:#f5f5f7;--card:#fff;
+  --header:#18103a;--purple:#7c3aed;
+  --gold:#d97706;--gold2:#b45309;--gold-accent:#f59e0b;
+  --green:#059669;--green-mid:#10b981;--green-light:#d1fae5;
+  --red:#dc2626;--red-light:#fee2e2;
+  --amber:#d97706;
+  --border:#e5e7eb;--border2:#d1d5db;
+  --body:'Inter',system-ui,sans-serif;
+  --display:'Oswald',sans-serif;
+}
+
+/* ── SCREEN WRAPPER ── */
+body{background:var(--bg);font-family:var(--body);color:var(--ink);min-height:100vh;padding:2rem}
+.screen-controls{max-width:816px;margin:0 auto 1.5rem;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.screen-controls h2{font-family:var(--body);font-size:14px;font-weight:600;color:var(--ink3)}
+.btn-print{background:var(--purple);color:#fff;border:none;font-family:var(--body);font-size:13px;font-weight:600;padding:9px 20px;border-radius:6px;cursor:pointer;transition:background 0.14s}
+.btn-print:hover{background:#6d28d9}
+.btn-back{background:transparent;color:var(--ink3);border:1px solid var(--border2);font-family:var(--body);font-size:13px;font-weight:500;padding:9px 16px;border-radius:6px;cursor:pointer;text-decoration:none;transition:all 0.14s;display:inline-block}
+.btn-back:hover{color:var(--ink);border-color:var(--border)}
+
+/* ── FLYER — matches US Letter at 96 dpi ── */
+.flyer{
+  background:#fff;
+  width:816px;
+  min-height:1056px;
+  margin:0 auto;
+  box-shadow:0 4px 24px rgba(0,0,0,0.12),0 0 0 1px rgba(0,0,0,0.06);
+  border-radius:4px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  font-size:13px;
+}
+
+/* ── HEADER ── */
+.flyer-header{
+  background:var(--header);
+  padding:28px 36px 24px;
+  position:relative;
+  overflow:hidden;
+}
+.flyer-header::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse 100% 200% at 100% -20%, rgba(124,58,237,0.3) 0%, transparent 60%);
+  pointer-events:none;
+}
+.header-top{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;position:relative}
+.header-left{}
+.pr-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(217,119,6,0.18);border:1px solid rgba(217,119,6,0.3);
+  color:var(--gold-accent);font-family:var(--body);font-size:10px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;padding:3px 10px;border-radius:99px;
+  margin-bottom:10px;
+}
+.pr-badge::before{content:'★';font-size:9px}
+.athlete-name{
+  font-family:var(--display);font-size:42px;font-weight:700;
+  letter-spacing:0.04em;text-transform:uppercase;color:#fff;
+  line-height:0.95;margin-bottom:6px;
+}
+.event-line{
+  font-family:var(--body);font-size:12px;font-weight:500;
+  letter-spacing:0.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.45);
+}
+.event-line span{color:rgba(255,255,255,0.7)}
+
+/* ── PR BLOCK ── */
+.pr-block{
+  background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:12px;padding:16px 20px;text-align:right;flex-shrink:0;position:relative;
+  min-width:180px;
+}
+.pr-time-label{
+  font-family:var(--body);font-size:9px;font-weight:700;
+  letter-spacing:0.14em;text-transform:uppercase;color:var(--gold-accent);
+  margin-bottom:4px;
+}
+.pr-time{
+  font-family:var(--display);font-size:52px;font-weight:700;
+  color:#fff;letter-spacing:0.02em;line-height:1;
+}
+.pr-time sup{font-size:22px;font-weight:500;color:rgba(255,255,255,0.6);margin-left:2px;vertical-align:super}
+.pr-improvement{
+  display:flex;align-items:center;justify-content:flex-end;gap:6px;margin-top:6px;
+}
+.improvement-chip{
+  background:rgba(16,185,129,0.18);border:1px solid rgba(16,185,129,0.3);
+  color:#34d399;font-family:var(--body);font-size:11px;font-weight:700;
+  padding:3px 10px;border-radius:99px;
+}
+.pr-prev{font-size:11px;color:rgba(255,255,255,0.35);font-family:var(--body)}
+
+/* ── STAT ROW ── */
+.stat-row{
+  display:flex;gap:0;margin-top:20px;border-top:1px solid rgba(255,255,255,0.1);
+  padding-top:16px;position:relative;
+}
+.stat-item{flex:1;padding-right:20px}
+.stat-item+.stat-item{padding-left:20px;border-left:1px solid rgba(255,255,255,0.1)}
+.stat-num{font-family:var(--display);font-size:22px;font-weight:700;color:#fff;line-height:1}
+.stat-lbl{font-family:var(--body);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-top:2px}
+
+/* ── BODY ── */
+.flyer-body{flex:1;padding:24px 36px;display:grid;grid-template-columns:1fr 240px;gap:20px}
+
+/* ── LEFT COLUMN ── */
+.col-left{}
+.section-label{
+  font-family:var(--body);font-size:9px;font-weight:700;letter-spacing:0.14em;
+  text-transform:uppercase;color:var(--ink3);border-bottom:1px solid var(--border);
+  padding-bottom:6px;margin-bottom:10px;
+}
+
+/* ── SPLIT TABLE ── */
+.split-table{width:100%;border-collapse:collapse;font-size:12px;margin-bottom:20px}
+.split-table thead th{
+  font-family:var(--body);font-size:9px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--ink3);padding:5px 8px;
+  border-bottom:2px solid var(--gold);text-align:center;background:var(--bg);
+}
+.split-table thead th:first-child{text-align:left}
+.split-table tbody td{
+  padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:center;color:var(--ink);
+  vertical-align:middle;
+}
+.split-table tbody td:first-child{text-align:left;font-weight:600;color:var(--ink2);font-size:11px}
+.split-table tbody tr:hover td{background:#fafafa}
+.split-table tbody tr.fatigue td{background:rgba(220,38,38,0.04)}
+.split-table tbody tr.fatigue td:first-child{color:var(--red)}
+.t-cum{font-family:var(--display);font-size:14px;font-weight:700;color:var(--ink)}
+.t-int{color:var(--ink3);font-size:11px}
+.t-delta{font-size:10px;font-weight:700}
+.t-delta.gain{color:var(--green-mid)}
+.t-speed{color:var(--purple);font-family:var(--display);font-size:11px}
+.fin-row td{background:rgba(124,58,237,0.06)!important;border-top:2px solid var(--purple)}
+.fin-row td:first-child{color:var(--purple);font-weight:700}
+.fin-row .t-cum{color:var(--purple);font-size:15px}
+
+/* ── RIGHT COLUMN ── */
+.col-right{}
+
+/* ── PACE BARS ── */
+.pace-section{margin-bottom:20px}
+.pace-row{display:flex;align-items:center;gap:6px;margin-bottom:3px}
+.pace-lbl{font-family:var(--body);font-size:9px;font-weight:700;letter-spacing:0.04em;text-transform:uppercase;color:var(--ink3);min-width:26px;text-align:right}
+.pace-track{flex:1;height:10px;background:#f3f4f6;border-radius:2px;overflow:hidden}
+.pace-fill{height:100%;border-radius:2px}
+.pace-val{font-family:var(--display);font-size:10px;color:var(--ink3);min-width:44px}
+
+/* ── COMPARISON BOX ── */
+.compare-box{
+  background:var(--header);border-radius:10px;padding:14px;margin-bottom:16px;
+}
+.compare-title{font-family:var(--body);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:rgba(255,255,255,0.4);margin-bottom:10px}
+.compare-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.compare-label{font-family:var(--body);font-size:10px;color:rgba(255,255,255,0.5)}
+.compare-val{font-family:var(--display);font-size:15px;font-weight:700;color:#fff}
+.compare-val.new{color:var(--gold-accent);font-size:18px}
+.delta-bar-wrap{margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)}
+.delta-bar-label{font-size:9px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.3);margin-bottom:6px}
+.delta-bar{height:8px;background:rgba(255,255,255,0.08);border-radius:99px;overflow:hidden}
+.delta-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green-mid),var(--gold-accent))}
+
+/* ── NEXT GOAL ── */
+.next-goal{background:rgba(124,58,237,0.08);border:1px solid rgba(124,58,237,0.15);border-radius:10px;padding:14px}
+.next-goal-title{font-family:var(--body);font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--purple);margin-bottom:8px}
+.next-goal-time{font-family:var(--display);font-size:28px;font-weight:700;color:var(--ink);margin-bottom:2px}
+.next-goal-sub{font-size:10px;color:var(--ink3)}
+.next-goal-delta{display:inline-block;margin-top:8px;background:rgba(124,58,237,0.12);color:var(--purple);font-size:10px;font-weight:700;padding:3px 10px;border-radius:99px}
+
+/* ── FOOTER ── */
+.flyer-footer{
+  background:var(--bg);border-top:1px solid var(--border);
+  padding:12px 36px;display:flex;align-items:center;justify-content:space-between;
+  gap:12px;
+}
+.footer-brand{font-family:var(--display);font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--ink3)}
+.footer-brand span{color:var(--gold2)}
+.footer-method{font-size:9px;color:var(--ink4);font-family:var(--body);text-align:right;line-height:1.4}
+.footer-date{font-family:var(--body);font-size:10px;color:var(--ink4)}
+
+/* ── COACH NOTES ── */
+.notes-box{
+  grid-column:1/-1;
+  border:1px dashed var(--border2);border-radius:8px;
+  padding:10px 14px;margin-top:4px;
+}
+.notes-label{font-size:9px;font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink4);margin-bottom:6px}
+.notes-lines{display:flex;flex-direction:column;gap:8px}
+.notes-line{height:1px;background:var(--border);border-radius:1px}
+
+/* ── PRINT ── */
+@media print{
+  body{background:#fff;padding:0}
+  .screen-controls{display:none}
+  .flyer{box-shadow:none;border-radius:0;width:100%;min-height:0}
+  @page{size:letter;margin:0}
+}
+
+@media(max-width:860px){
+  body{padding:1rem}
+  .flyer{width:100%;min-width:0}
+  .flyer-body{grid-template-columns:1fr}
+  .col-right{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+}
+</style>
+</head>
+<body>
+
+<div class="screen-controls">
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="index.html" class="btn-back">← Back to App</a>
+    <h2>Race Report Preview</h2>
+  </div>
+  <button class="btn-print" onclick="window.print()">Print / Save PDF</button>
+</div>
+
+<div class="flyer">
+
+  <!-- ── HEADER ── -->
+  <div class="flyer-header">
+    <div class="header-top">
+      <div class="header-left">
+        <div class="pr-badge">Personal Record</div>
+        <div class="athlete-name">Aiden<br>Kolkmeyer</div>
+        <div class="event-line">
+          <span>400m Hurdles</span> &nbsp;·&nbsp;
+          New Balance Nationals &nbsp;·&nbsp;
+          June 19, 2026
+        </div>
+      </div>
+      <div class="pr-block">
+        <div class="pr-time-label">New PR</div>
+        <div class="pr-time">53<sup>.27</sup></div>
+        <div class="pr-improvement">
+          <div class="improvement-chip">▲ 2.45 sec</div>
+          <div class="pr-prev">from 55.72</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-item">
+        <div class="stat-num">6.34</div>
+        <div class="stat-lbl">After H1 (ideal)</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">28.70</div>
+        <div class="stat-lbl">After H6 · midrace</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">47.69</div>
+        <div class="stat-lbl">After H10</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num">5.58</div>
+        <div class="stat-lbl">Final run-in</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BODY ── -->
+  <div class="flyer-body">
+
+    <!-- LEFT: Split table -->
+    <div class="col-left">
+      <div class="section-label">Ideal split profile · 53.27 target</div>
+      <table class="split-table">
+        <thead>
+          <tr>
+            <th>Point</th>
+            <th>Interval</th>
+            <th>Cumulative</th>
+            <th>vs 55.72 PR</th>
+            <th>Speed (m/s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Hurdle 1</td>
+            <td class="t-int">6.34</td>
+            <td class="t-cum">6.34</td>
+            <td class="t-delta gain">−0.29</td>
+            <td class="t-speed">3.16</td>
+          </tr>
+          <tr>
+            <td>Hurdle 2</td>
+            <td class="t-int">4.45</td>
+            <td class="t-cum">10.79</td>
+            <td class="t-delta gain">−0.50</td>
+            <td class="t-speed">4.49</td>
+          </tr>
+          <tr>
+            <td>Hurdle 3</td>
+            <td class="t-int">4.45</td>
+            <td class="t-cum">15.24</td>
+            <td class="t-delta gain">−0.71</td>
+            <td class="t-speed">4.49</td>
+          </tr>
+          <tr>
+            <td>Hurdle 4</td>
+            <td class="t-int">4.45</td>
+            <td class="t-cum">19.69</td>
+            <td class="t-delta gain">−0.92</td>
+            <td class="t-speed">4.49</td>
+          </tr>
+          <tr>
+            <td>Hurdle 5</td>
+            <td class="t-int">4.45</td>
+            <td class="t-cum">24.14</td>
+            <td class="t-delta gain">−1.13</td>
+            <td class="t-speed">4.49</td>
+          </tr>
+          <tr>
+            <td>Hurdle 6</td>
+            <td class="t-int">4.56</td>
+            <td class="t-cum">28.70</td>
+            <td class="t-delta gain">−1.34</td>
+            <td class="t-speed">4.38</td>
+          </tr>
+          <tr>
+            <td>Hurdle 7</td>
+            <td class="t-int">4.56</td>
+            <td class="t-cum">33.26</td>
+            <td class="t-delta gain">−1.55</td>
+            <td class="t-speed">4.38</td>
+          </tr>
+          <tr class="fatigue">
+            <td>Hurdle 8</td>
+            <td class="t-int">4.64</td>
+            <td class="t-cum">37.90</td>
+            <td class="t-delta gain">−1.77</td>
+            <td class="t-speed">4.31</td>
+          </tr>
+          <tr class="fatigue">
+            <td>Hurdle 9</td>
+            <td class="t-int">4.78</td>
+            <td class="t-cum">42.68</td>
+            <td class="t-delta gain">−1.99</td>
+            <td class="t-speed">4.19</td>
+          </tr>
+          <tr class="fatigue">
+            <td>Hurdle 10</td>
+            <td class="t-int">5.01</td>
+            <td class="t-cum">47.69</td>
+            <td class="t-delta gain">−2.22</td>
+            <td class="t-speed">4.00</td>
+          </tr>
+          <tr class="fin-row">
+            <td>Finish Line</td>
+            <td class="t-int">5.58</td>
+            <td class="t-cum">53.27</td>
+            <td class="t-delta gain">−2.45</td>
+            <td class="t-speed">—</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Coach notes -->
+      <div class="notes-box">
+        <div class="notes-label">Coaching notes</div>
+        <div class="notes-lines">
+          <div class="notes-line"></div>
+          <div class="notes-line"></div>
+          <div class="notes-line"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Pace viz + comparison -->
+    <div class="col-right">
+
+      <div class="compare-box">
+        <div class="compare-title">PR comparison</div>
+        <div class="compare-row">
+          <div class="compare-label">New PR</div>
+          <div class="compare-val new">53.27</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Previous PR</div>
+          <div class="compare-val">55.72</div>
+        </div>
+        <div class="compare-row">
+          <div class="compare-label">Meet</div>
+          <div class="compare-val" style="font-size:12px;color:rgba(255,255,255,0.6)">NB Nationals</div>
+        </div>
+        <div class="delta-bar-wrap">
+          <div class="delta-bar-label">Improvement — 2.45 sec (4.4%)</div>
+          <div class="delta-bar">
+            <div class="delta-fill" style="width:4.4%"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="next-goal">
+        <div class="next-goal-title">Next milestone</div>
+        <div class="next-goal-time">52.xx</div>
+        <div class="next-goal-sub">Needs 1.27 sec more improvement.<br>At current trajectory: 1–2 seasons.</div>
+        <div class="next-goal-delta">H8 fatigue zone is the key</div>
+      </div>
+
+      <div class="pace-section" style="margin-top:16px">
+        <div class="section-label">Pace profile · 53.27</div>
+        <!-- max speed is 4.49, normalize bars to that -->
+        <div class="pace-row">
+          <div class="pace-lbl">H1</div>
+          <div class="pace-track"><div class="pace-fill" style="width:70%;background:#f59e0b"></div></div>
+          <div class="pace-val">3.16</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H2</div>
+          <div class="pace-track"><div class="pace-fill" style="width:100%;background:#f59e0b"></div></div>
+          <div class="pace-val">4.49</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H3</div>
+          <div class="pace-track"><div class="pace-fill" style="width:100%;background:#f59e0b"></div></div>
+          <div class="pace-val">4.49</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H4</div>
+          <div class="pace-track"><div class="pace-fill" style="width:100%;background:#a78bfa"></div></div>
+          <div class="pace-val">4.49</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H5</div>
+          <div class="pace-track"><div class="pace-fill" style="width:100%;background:#a78bfa"></div></div>
+          <div class="pace-val">4.49</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H6</div>
+          <div class="pace-track"><div class="pace-fill" style="width:97%;background:#a78bfa"></div></div>
+          <div class="pace-val">4.38</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H7</div>
+          <div class="pace-track"><div class="pace-fill" style="width:97%;background:#6b7280"></div></div>
+          <div class="pace-val">4.38</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H8</div>
+          <div class="pace-track"><div class="pace-fill" style="width:96%;background:#6b7280"></div></div>
+          <div class="pace-val">4.31</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H9</div>
+          <div class="pace-track"><div class="pace-fill" style="width:93%;background:#dc2626"></div></div>
+          <div class="pace-val">4.19</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">H10</div>
+          <div class="pace-track"><div class="pace-fill" style="width:89%;background:#dc2626"></div></div>
+          <div class="pace-val">4.00</div>
+        </div>
+        <div class="pace-row">
+          <div class="pace-lbl">Fin</div>
+          <div class="pace-track"><div class="pace-fill" style="width:80%;background:#6b7280"></div></div>
+          <div class="pace-val">—</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div class="flyer-footer">
+    <div class="footer-brand">Derek Drew <span>Hurdle Analysis</span></div>
+    <div class="footer-date">June 19, 2026 · New Balance Nationals</div>
+    <div class="footer-method">Ross &amp; Hernandez de Ross Critical Zones Method<br>Splits scaled from Hurdler's Bible 2 ratio model</div>
+  </div>
+
+</div>
+
+</body>
+</html>
