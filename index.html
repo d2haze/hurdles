@@ -5,7 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Derek Drew — Hurdle Critical Zones & Touchdown Time Tool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Oswald:wght@300;400;500;600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="ds/tokens.css">
 <link rel="stylesheet" href="ds/components.css">
 </head>
@@ -388,6 +389,7 @@
 </div><!-- /container -->
 </main>
 
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
 <script src="ds/components.js"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════════
@@ -544,11 +546,21 @@ function interpolateData400(targetTime) {
 function getTargetTime(selectId, customId) {
   const sel = document.getElementById(selectId).value;
   if (sel === 'custom') {
-    document.getElementById(customId).style.display='inline-block';
-    const v = parseFloat(document.getElementById(customId).value);
+    const input = document.getElementById(customId);
+    input.style.display = 'inline-block';
+    const v = parseFloat(input.value);
+    if (!isNaN(v)) {
+      const min = parseFloat(input.min), max = parseFloat(input.max);
+      if (v < min || v > max) {
+        showFieldMessage(customId, `Enter a value between ${min}–${max} sec.`, 'warning');
+        return null;
+      }
+      clearFieldMessage(customId);
+    }
     return isNaN(v) ? null : v;
   }
-  document.getElementById(customId).style.display='none';
+  document.getElementById(customId).style.display = 'none';
+  clearFieldMessage(customId);
   return parseFloat(sel);
 }
 
@@ -738,7 +750,26 @@ function raHurdleCount(event) {
   return event === '300h' ? 9 : 11;
 }
 
-function raSetEvent(ev) {
+function raSetEvent(ev, force) {
+  if (!force && raEntries.length > 0 && ev !== raEvent) {
+    const prevEntries = raEntries.slice();
+    const prevEvent = raEvent;
+    const prevNextId = raNextId;
+    raEntries = [];
+    raNextId = 0;
+    _raApplyEvent(ev);
+    showToast('Event changed — entries cleared.', 'warn', 'Undo', () => {
+      raEntries = prevEntries;
+      raNextId = prevNextId;
+      _raApplyEvent(prevEvent);
+    });
+    return;
+  }
+  if (ev !== raEvent) { raEntries = []; raNextId = 0; }
+  _raApplyEvent(ev);
+}
+
+function _raApplyEvent(ev) {
   raEvent = ev;
   document.querySelectorAll('#panel-4 .sub-tab').forEach((t,i) => {
     const isActive = ['110m','100w','300h','400m'][i] === ev;
@@ -749,12 +780,18 @@ function raSetEvent(ev) {
   sel.innerHTML = RA_TARGETS[ev].map(o =>
     `<option value="${o.v}"${o.l.includes('default')?' selected':''}>${o.l}</option>`
   ).join('');
-  raEntries = [];
-  raNextId = 0;
-  document.getElementById('raAddBtn').style.opacity = '1';
-  document.getElementById('raAddBtn').style.pointerEvents = 'auto';
+  _raUpdateAddBtn();
   raRenderCards();
   raRender();
+}
+
+function _raUpdateAddBtn() {
+  const btn = document.getElementById('raAddBtn');
+  if (!btn) return;
+  const full = raEntries.length >= RA_MAX;
+  btn.disabled = full;
+  btn.setAttribute('aria-disabled', full ? 'true' : 'false');
+  btn.title = full ? 'Maximum 4 entries reached — remove one to add another' : '';
 }
 
 function raAddEntry() {
@@ -764,25 +801,32 @@ function raAddEntry() {
   raEntries.push({ id, label: `Entry ${id+1}`, times: Array(count).fill(null) });
   raRenderCards();
   raRender();
-  document.getElementById('raAddBtn').style.opacity = raEntries.length >= RA_MAX ? '0.4' : '1';
-  document.getElementById('raAddBtn').style.pointerEvents = raEntries.length >= RA_MAX ? 'none' : 'auto';
+  _raUpdateAddBtn();
 }
 
 function raRemoveEntry(id) {
   raEntries = raEntries.filter(e => e.id !== id);
   raRenderCards();
   raRender();
-  document.getElementById('raAddBtn').style.opacity = '1';
-  document.getElementById('raAddBtn').style.pointerEvents = 'auto';
+  _raUpdateAddBtn();
 }
 
 function raClearAll() {
+  if (raEntries.length === 0) return;
+  const prev = raEntries.slice();
+  const prevId = raNextId;
   raEntries = [];
   raNextId = 0;
   raRenderCards();
   document.getElementById('raResults').innerHTML = '';
-  document.getElementById('raAddBtn').style.opacity = '1';
-  document.getElementById('raAddBtn').style.pointerEvents = 'auto';
+  _raUpdateAddBtn();
+  showToast('All entries cleared.', 'warn', 'Undo', () => {
+    raEntries = prev;
+    raNextId = prevId;
+    raRenderCards();
+    raRender();
+    _raUpdateAddBtn();
+  });
 }
 
 function raUpdateLabel(id, val) {
@@ -1341,18 +1385,42 @@ function grantAccess(name, role) {
 }
 
 function doLogin() {
-  const email    = document.getElementById('loginEmail').value.trim().toLowerCase();
-  const password = document.getElementById('loginPass').value;
-  const errorEl  = document.getElementById('loginError');
-  const user = DEMO_USERS.find(u => u.email === email && u.password === password);
-  if (user) {
-    grantAccess(user.name, 'user');
-    errorEl.style.display = 'none';
-  } else {
+  const emailEl = document.getElementById('loginEmail');
+  const passEl  = document.getElementById('loginPass');
+  const errorEl = document.getElementById('loginError');
+  const btn     = document.querySelector('.login-btn');
+  const email   = emailEl.value.trim().toLowerCase();
+  const password = passEl.value;
+
+  emailEl.classList.remove('input-error');
+  passEl.classList.remove('input-error');
+  errorEl.style.display = 'none';
+
+  const emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRx.test(email)) {
+    emailEl.classList.add('input-error');
+    errorEl.textContent = 'Please enter a valid email address.';
     errorEl.style.display = 'block';
-    document.getElementById('loginPass').value = '';
-    document.getElementById('loginPass').focus();
+    emailEl.focus();
+    return;
   }
+
+  btn.disabled = true;
+  btn.textContent = 'Signing in…';
+
+  setTimeout(() => {
+    const user = DEMO_USERS.find(u => u.email === email && u.password === password);
+    btn.disabled = false;
+    btn.textContent = 'Sign In';
+    if (user) {
+      grantAccess(user.name, 'user');
+    } else {
+      passEl.classList.add('input-error');
+      errorEl.textContent = 'Incorrect email or password. Please try again.';
+      errorEl.style.display = 'block';
+      passEl.focus();
+    }
+  }, 400);
 }
 
 function doLogout() {
@@ -1384,7 +1452,52 @@ render400Table();
 render300hTable();
 buildConvRefTable();
 updateConfig();
-raSetEvent('110m');
+raSetEvent('110m', true);
+
+// ── Toast system ─────────────────────────────────────────────────────
+function showToast(msg, type, action, onAction, duration) {
+  duration = duration ?? 4500;
+  const container = document.getElementById('toast-container');
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' toast-' + type : '');
+  el.innerHTML = `<span class="toast-msg">${msg}</span>` +
+    (action ? `<button class="toast-action">${action}</button>` : '') +
+    `<button class="toast-close" aria-label="Dismiss">×</button>`;
+  container.appendChild(el);
+  let timer;
+  const dismiss = () => {
+    clearTimeout(timer);
+    el.classList.add('removing');
+    el.addEventListener('animationend', () => el.remove(), { once: true });
+  };
+  if (action && onAction) {
+    el.querySelector('.toast-action').addEventListener('click', () => { onAction(); dismiss(); });
+  }
+  el.querySelector('.toast-close').addEventListener('click', dismiss);
+  timer = setTimeout(dismiss, duration);
+}
+
+// ── Field validation helpers ─────────────────────────────────────────
+function showFieldMessage(inputId, msg, type) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.classList.toggle('input-error', type === 'error');
+  let msgEl = input.parentElement.querySelector('.field-error, .field-warning');
+  if (!msgEl) {
+    msgEl = document.createElement('div');
+    input.parentElement.appendChild(msgEl);
+  }
+  msgEl.className = type === 'error' ? 'field-error visible' : 'field-warning visible';
+  msgEl.textContent = msg;
+}
+
+function clearFieldMessage(inputId) {
+  const input = document.getElementById(inputId);
+  if (!input) return;
+  input.classList.remove('input-error');
+  const msgEl = input.parentElement.querySelector('.field-error, .field-warning');
+  if (msgEl) { msgEl.classList.remove('visible'); }
+}
 </script>
 </body>
 </html>
