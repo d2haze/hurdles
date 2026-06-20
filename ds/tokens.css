@@ -1,0 +1,60 @@
+:root {
+  /* ── Palette ── */
+  --bg: #f0ecf8;
+  --bg2: #e6e0f4;
+  --bg3: #d9d0ed;
+  --card: #ffffff;
+  --header: #2d1b6e;
+  --ink: #1a1035;
+  --ink2: #3d2d6a;
+  --ink3: #6b5b8a;
+  --purple: #4c2fa0;
+  --purple2: #3b2280;
+  --gold: #c4900a;
+  --gold2: #a87408;
+  --violet: #7c5cbf;
+  --border: #c4b8e0;
+  --border2: #a090c8;
+  --text: #1a1035;
+
+  /* ── Status ── */
+  --green: #15803d;
+  --green-light: #86efac;
+  --green-mid: #3ecf6e;
+  --red: #dc2626;
+  --red-light: #e06060;
+  --amber: #f59e0b;
+  --gold-accent: #d4a017;
+  --violet-light: #a78bfa;
+
+  /* ── Typography ── */
+  --display: 'Oswald', sans-serif;
+  --serif: 'Source Serif 4', Georgia, serif;
+  --size-2xs: 9px;
+  --size-xs: 10px;
+  --size-sm: 11px;
+  --size-base: 13px;
+  --size-md: 15px;
+  --size-lg: 18px;
+  --size-xl: 24px;
+  --size-2xl: 26px;
+  --size-3xl: 28px;
+
+  /* ── Spacing ── */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+
+  /* ── Border radius ── */
+  --r-xs: 1px;
+  --r-sm: 2px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-xl: 12px;
+
+  /* ── Shadows ── */
+  --shadow-card: 0 2px 8px rgba(76,47,160,0.08);
+  --shadow-modal: 0 20px 60px rgba(0,0,0,0.4);
+}
